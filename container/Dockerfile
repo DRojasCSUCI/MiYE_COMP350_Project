@@ -184,6 +184,8 @@ RUN sqlite3 /MiYE_Project/db/MiYEDB.db "INSERT INTO USERS_SERVICES_HISTORY (USER
 
 ### Cloning Project From Repository
 
+# IMPORTANT NOTE 1: To avoid entering username and passowrd, a OAUTH Token generated through github is used, it expires on December 24, 2021
+# IMPORTANT NOTE 2: -b BranchName can be '-b master' however, this is used to test each team member's code, so it's best to use the proper branch
 RUN git clone -b DRojasBranch https://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:x-oauth-basic@github.com/DRojasCSUCI/MiYE_COMP350_Project.git /MiYE_Project/MiYE_COMP350_Project
 
 
