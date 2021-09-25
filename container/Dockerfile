@@ -184,7 +184,7 @@ RUN sqlite3 /MiYE_Project/db/MiYEDB.db "INSERT INTO USERS_SERVICES_HISTORY (USER
 
 ### Cloning Project From Repository
 
-RUN git clone -b DRojasBranch https://oauth-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@github.com/DRojasCSUCI/MiYE_COMP350_Project.git /MiYE_Project
+RUN git clone -b DRojasBranch https://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:x-oauth-basic@github.com/DRojasCSUCI/MiYE_COMP350_Project.git /MiYE_Project/MiYE_COMP350_Project
 
 
 ### Moving Dependencies to Proper Directory
