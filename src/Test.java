@@ -10,10 +10,7 @@ import java.util.Scanner;
  */
 public class Test
 {
-    /**
-     * Connect to a sample database
-     * @return
-     */
+
     public static Connection connect() {
         Connection conn = null;
         try {
@@ -30,6 +27,7 @@ public class Test
         return conn;
     }
 
+    //TODO: MAKE THIS METHOD NAME MORE DESCRIPTIVE
     public static void selectAll(Connection conn, String id) throws SQLException
     {
 
@@ -60,25 +58,127 @@ public class Test
 
     }
 
+    public static void printReservations(Connection conn) throws SQLException{
+
+        //Preparing the Query
+        String sql = "" +
+                "SELECT " +
+                "U.USER_ID, U.L_NAME, U.F_NAME, S.SERVICE_ID, S.SERVICE_NAME, H.DATE_TIME, H.DURATION_PICKED, H.COST " +
+                "FROM SERVICES S " +
+                "JOIN USERS_SERVICES_HISTORY H ON S.SERVICE_ID = H.SERVICE_ID " +
+                "JOIN USERS U ON H.USER_ID = U.USER_ID " +
+                "WHERE H.COMPLETED_FLAG = 0 AND H.CANCELLED_FLAG = 0;";
+        PreparedStatement pstmt  = conn.prepareStatement(sql);
+
+        //Executing Query
+        ResultSet rs = pstmt.executeQuery();
+
+        //Iterating Over Query Results
+        if (!rs.next()){
+            System.out.println("No Reservations Currently Made");
+        } else
+        {
+            System.out.println("\n     RESERVATIONS    ");
+            System.out.println("======================");
+            do
+            {
+                System.out.println( "\n" + rs.getString("USER_ID") + ": " + rs.getString("L_NAME") + ", " +
+                        rs.getString("F_NAME") + "\n" + rs.getString("SERVICE_ID") + ": " +
+                        rs.getString("SERVICE_NAME") + "\n" + "Date-Time: " + rs.getString("DATE_TIME") +
+                        "\t" + "Duration: " + rs.getInt("DURATION_PICKED") + "min\n" + "Total Cost: $" +
+                        rs.getFloat("COST")
+                );
+            }  while (rs.next());
+        }
+
+    }
+
+    public static void printServices(Connection conn) throws SQLException{
+
+        //Preparing the Query
+        String sql = "SELECT * FROM SERVICES;";
+        PreparedStatement pstmt  = conn.prepareStatement(sql);
+
+        //Executing Query
+        ResultSet rs = pstmt.executeQuery();
+
+        //Iterating Over Query Results
+        if (!rs.next()){
+            System.out.println("No Services Have Been Added");
+        } else
+        {
+            System.out.println("\n     SERVICES    ");
+            System.out.println("==================");
+            do
+            {
+                System.out.println( "\n" + rs.getString("SERVICE_ID") + ": " + rs.getString("SERVICE_NAME") +
+                        "\nDescription: " + rs.getString("SERVICE_DESC") + "\nPrice Per Minute: $" +
+                        rs.getFloat("PRICE_PER_MINUTE") + "\nDuration Options: " +
+                        rs.getString("DURATION_OPTIONS")
+                );
+            }  while (rs.next());
+        }
+
+    }
+
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) throws SQLException
     {
+
+        //Connection to DataBase
+        Connection con;
+        try {
+            con = connect();
+        } catch (Exception e){
+            System.out.println("\nERROR ON CONNECTING TO SQL DATABASE\n " + e);
+            return;
+        }
+
+        //Terminal Interface
+        String userIn = "";
         Scanner scan = new Scanner(System.in);
-        String userIn;
 
-        try{
-            Connection con = connect();
-            System.out.println("Please enter your fucking id: ");
-            userIn = scan.next();
-            selectAll(con,userIn);
+        while(userIn.compareTo("EXIT") != 0){
+
+            //Prompt for User Input
+            System.out.println( "\n\n" +
+                    "Enter a Two-Character Command From the Available Actions\n" +
+                    "[VU]: View Users\n" +
+                    "[VS]: View Services\n" +
+                    "[VR]: View Reservations\n" +
+                    "[EXIT]: Exit\n" +
+                    "[..]: ..."
+            );
+
+            userIn = scan.nextLine();
+
+            //Checking Input
+            switch (userIn.toUpperCase()){
+                case "VU":
+                    //printUsers(con);
+                    break;
+                case "VS":
+                    printServices(con);
+                    break;
+                case "VR":
+                    printReservations(con);
+                    break;
+                case "...":
+                    //...
+                    break;
+                case "EXIT":
+                    System.out.println("Exiting...");
+                    break;
+                default: System.out.println("Invalid Command\n");
+            }
 
         }
-        catch (SQLException e){
 
-        }
-
+        //TODO: ClOSE DB and END CONNECTION PROPERLY ?
 
     }
+
+
 }
