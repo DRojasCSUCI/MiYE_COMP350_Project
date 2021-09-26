@@ -18,7 +18,7 @@ public class Test
         Connection conn = null;
         try {
             // db parameters
-            String url = "jdbc:sqlite:/MiYE_Project/db/MiYEDB.db";
+            String url = "jdbc:sqlite:tempDB";
             // create a connection to the database
             conn = DriverManager.getConnection(url);
 
