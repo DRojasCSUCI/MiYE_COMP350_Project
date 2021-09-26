@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
+    <data-source source="LOCAL" name="SQLite - tempDB" uuid="e9098744-29f7-4593-bacc-2fd74ce2285e">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:C:\Users\polar\Desktop\COMP350\MiYE_DB\MiYE_COMP350_Project\tempDB</jdbc-url>
+    </data-source>
+  </component>
+</project>

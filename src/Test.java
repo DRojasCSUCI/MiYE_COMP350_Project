@@ -60,6 +60,54 @@ public class Test
 
     }
 
+    public static void printCurrentReservations(Connection conn) throws SQLException{
+
+        //Preparing the Query
+        String sql = "SELECT * FROM USERS_SERVICES_HISTORY WHERE COMPLETED-FLAG = 0 AND CANCELLED_FLAG = 0";
+        PreparedStatement pstmt  = conn.prepareStatement(sql);
+
+        //Executing Query
+        ResultSet rs = pstmt.executeQuery();
+
+        //Iterating Over Query Results
+        if (!rs.next()){
+            System.out.println("No Reservations Currently Made");
+        } else
+        {
+            do
+            {
+                System.out.println(
+                        rs.getString("ID") + "\t" + rs.getString("First Name") + "\t" + rs.getString("Last Name") + "\t" + rs.getString("Gender")
+                                + "\t" + rs.getString("Service"));
+            }  while (rs.next());
+        }
+
+    }
+
+    public static void printServices(Connection conn) throws SQLException{
+
+        //Preparing the Query
+        String sql = "SELECT * FROM SERVICES";
+        PreparedStatement pstmt  = conn.prepareStatement(sql);
+
+        //Executing Query
+        ResultSet rs = pstmt.executeQuery();
+
+        //Iterating Over Query Results
+        if (!rs.next()){
+            System.out.println("No Services Have Been Added");
+        } else
+        {
+            do
+            {
+                System.out.println( rs.getString(0) + "\t" + rs.getString(1) + "\t" + rs.getString(2)
+                        + "\t" + rs.getString(3) + "\t" + rs.getString(4) + "\t" + rs.getString(5)
+                        + "\t" + rs.getString(6) );
+            }  while (rs.next());
+        }
+
+    }
+
     /**
      * @param args the command line arguments
      */
