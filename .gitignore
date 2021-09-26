@@ -10,6 +10,9 @@
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
+#Folder wher built .class fiels and other build data are stored
+.out/
+
 # Package Files #
 #*.jar
 *.war
