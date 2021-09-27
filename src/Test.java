@@ -131,6 +131,52 @@ public class Test
 
     }
 
+    // Jeffery Foyil
+    public static void cancelReservation(Connection conn, String id) throws SQLException{
+        /**
+         * Checks if the user has a reservation they are able to cancel. If an applicable
+         * reservation is able to be cancelled, then it is cancelled, removed from the database,
+         * and the history of the cancelled reservation is recorded in the history table.
+         * @param: conn The database connection
+         * @param: id The user id
+         * @return: None
+         */
+
+        // Preparing the Query
+        String query = "SELECT * FROM USERS_ACTIVE_SERVICES WHERE USER_ID=" + id + " AND IN_SERVICE_FLAG=1";
+        PreparedStatement pstmt = conn.prepareStatement(query);
+
+        // execute the query
+        ResultSet rs = pstmt.executeQuery();
+
+        // check if reservation exists and isn't active
+        if(!rs.next()){
+            System.out.println("No Reservations Found to be Cancelled");
+            return;
+        }
+
+        Scanner scan = new Scanner(System.in);
+        System.out.println("Type 'DELETE' to delete this reservation. ");
+        String input = scan.nextLine();
+        if(input.equals("DELETE")){
+
+            // add deleted reservation to USERS_SERVICES_HISTORY
+            query = "INSERT INTO USERS_SERVICES_HISTORY (USER_ID, COMPLETED_FLAG, CANCELLED_FLAG, SERVICE_ID, DATE_TIME, DURATION_PICKED, COST)\n" +
+                    "VALUES ('" + rs.getString("USER_ID") + "', '0', '1', '" + rs.getString("SERVICE_ID") + "', '" +
+                    rs.getString("TIME_STARTED") + "', '" + rs.getString("DURATION_PICKED") + "', '225')";
+            pstmt = conn.prepareStatement(query);
+            pstmt.executeUpdate();
+
+            // delete the reservation
+            System.out.println("RESERVATION DELETED.");
+            query = "DELETE FROM USERS_ACTIVE_SERVICES WHERE USER_ID=" + id;
+            pstmt = conn.prepareStatement(query);
+            pstmt.executeUpdate();
+            return;
+        }
+        System.out.println("Cancellation terminated, returning to application."); // return to main application
+    }
+
     public static boolean authentication(Connection conn, String userID, String password) throws SQLException
     {
         boolean check = true;
@@ -224,6 +270,7 @@ public class Test
                             "[VS]: View Services\n" +
                             "[VR]: View Reservations\n" +
                             "[UA]: User Active Reservations\n" +
+                            "[CR]: Cancel Reservation\n" +
                             "[EXIT]: Exit\n" +
                             "[..]: ...\r" +
                             "Enter Option: "
@@ -243,11 +290,16 @@ public class Test
                         case "VR":
                             printReservations(con);
                             break;
-                        case "VA":
+                        case "UA":
                             System.out.println("Please input User ID: ");
                             userIn = scan.nextLine();
                             checkCurrentServices(con, userIn);
                             break;
+                        case "CR":
+                            //TODO delete reservations
+                            System.out.println("Please input User ID: ");
+                            userIn = scan.nextLine();
+                            cancelReservation(con, userIn);
                         case "EXIT":
                             System.out.println("Exiting...");
                             break;
