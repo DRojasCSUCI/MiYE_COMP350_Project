@@ -12,7 +12,8 @@ public class Test {
         try {
 
             // db parameters
-            String url = "jdbc:sqlite:tempDB";
+            //String url = "jdbc:sqlite:tempDB";
+            String url = "jdbc:sqlite:/MiYE_Project/db/MiYEDB.db";
             // create a connection to the database
             conn = DriverManager.getConnection(url);
 
@@ -189,7 +190,7 @@ public class Test {
         boolean check = true;
 
         //Preparing the Query
-        String sql = "SELECT ADMIN_FLAG FROM USERS WHERE USERS.user_id = ?";
+        String sql = "SELECT ADMIN_FLAG FROM USERS WHERE USER_ID = ?";
         PreparedStatement pstmt = conn.prepareStatement(sql);
 
 
