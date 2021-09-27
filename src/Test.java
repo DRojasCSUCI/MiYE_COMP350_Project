@@ -5,14 +5,11 @@ import java.sql.SQLException;
 import java.util.Scanner;
 
 
-public class Test
-{
+public class Test {
 
-    public static Connection connect()
-    {
+    public static Connection connect() {
         Connection conn = null;
-        try
-        {
+        try {
 
             // db parameters
             String url = "jdbc:sqlite:tempDB";
@@ -21,16 +18,14 @@ public class Test
 
             System.out.println("Connection to SQLite has been established.");
 
-        } catch (SQLException e)
-        {
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
         return conn;
     }
 
     //TODO: MAKE THIS METHOD NAME MORE DESCRIPTIVE
-    public static void checkCurrentServices(Connection conn, String id) throws SQLException
-    {
+    public static void checkCurrentServices(Connection conn, String id) throws SQLException {
 
         String sql = "SELECT USERS.USER_ID as \"ID\", USERS.F_NAME AS \"First Name\", USERS.L_NAME AS \"Last Name\", USERS.GENDER AS \"Gender\",USERS_ACTIVE_SERVICES.TIME_STARTED AS \"Start Time\",  SERVICES.SERVICE_NAME AS \"Service\", USERS_ACTIVE_SERVICES.TIME_STARTED AS \"Start Time\", USERS_ACTIVE_SERVICES.DURATION_PICKED AS \"Duration\" FROM USERS \n" +
                 "JOIN USERS_ACTIVE_SERVICES ON USERS_ACTIVE_SERVICES.USER_ID = USERS.USER_ID\n" +
@@ -45,13 +40,10 @@ public class Test
         ResultSet rs = pstmt.executeQuery();
 
         // loop through the result set
-        if (!rs.next())
-        {
+        if (!rs.next()) {
             System.out.println("No Reservations Currently Made Under That User");
-        } else
-        {
-            do
-            {
+        } else {
+            do {
                 System.out.println("\n     ACTIVE RESERVATIONS     ");
                 System.out.println("===============================");
                 System.out.println(
@@ -64,8 +56,32 @@ public class Test
 
     }
 
-    public static void printReservations(Connection conn) throws SQLException
-    {
+    public static void printUsers(Connection conn) throws SQLException {
+
+        // Preparing the Query
+        String query = "SELECT * FROM USERS";
+        PreparedStatement pstmt = conn.prepareStatement(query);
+
+        // Execute the Query
+        ResultSet rs = pstmt.executeQuery();
+
+        // check if there are users
+        if (!rs.next()) {
+            System.out.println("No Users in Database");
+            return;
+        }
+
+        // loop through and print user information
+        System.out.println("\n    USERS    ");
+        System.out.println("================");
+        do {
+            System.out.println("\n" + rs.getString("USER_ID") + ": " + rs.getString("L_NAME") + ", " +
+                    rs.getString("F_NAME") + "\n" + "Gender: " + rs.getString("GENDER") + "\n" +
+                    "Date Start of Stay: " + rs.getString("DATE_START_OF_STAY") + "\n" + "Date End of Stay: " + rs.getString("DATE_END_OF_STAY"));
+        } while (rs.next());
+    }
+
+    public static void printReservations(Connection conn) throws SQLException {
 
         //Preparing the Query
         String sql = "" +
@@ -81,15 +97,12 @@ public class Test
         ResultSet rs = pstmt.executeQuery();
 
         //Iterating Over Query Results
-        if (!rs.next())
-        {
+        if (!rs.next()) {
             System.out.println("No Reservations Currently Made");
-        } else
-        {
+        } else {
             System.out.println("\n     RESERVATIONS    ");
             System.out.println("=======================");
-            do
-            {
+            do {
                 System.out.println("\n" + rs.getString("USER_ID") + ": " + rs.getString("L_NAME") + ", " +
                         rs.getString("F_NAME") + "\n" + rs.getString("SERVICE_ID") + ": " +
                         rs.getString("SERVICE_NAME") + "\n" + "Date-Time: " + rs.getString("DATE_TIME") +
@@ -101,8 +114,7 @@ public class Test
 
     }
 
-    public static void printServices(Connection conn) throws SQLException
-    {
+    public static void printServices(Connection conn) throws SQLException {
 
         //Preparing the Query
         String sql = "SELECT * FROM SERVICES;";
@@ -112,15 +124,12 @@ public class Test
         ResultSet rs = pstmt.executeQuery();
 
         //Iterating Over Query Results
-        if (!rs.next())
-        {
+        if (!rs.next()) {
             System.out.println("No Services Have Been Added");
-        } else
-        {
+        } else {
             System.out.println("\n     SERVICES    ");
             System.out.println("===================");
-            do
-            {
+            do {
                 System.out.println("\n" + rs.getString("SERVICE_ID") + ": " + rs.getString("SERVICE_NAME") +
                         "\nDescription: " + rs.getString("SERVICE_DESC") + "\nPrice Per Minute: $" +
                         rs.getFloat("PRICE_PER_MINUTE") + "\nDuration Options: " +
@@ -131,14 +140,13 @@ public class Test
 
     }
 
-    // Jeffery Foyil
-    public static void cancelReservation(Connection conn, String id) throws SQLException{
+    public static void cancelReservation(Connection conn, String id) throws SQLException {
         /**
          * Checks if the user has a reservation they are able to cancel. If an applicable
          * reservation is able to be cancelled, then it is cancelled, removed from the database,
          * and the history of the cancelled reservation is recorded in the history table.
-         * @param: conn The database connection
-         * @param: id The user id
+         * @param:  conn The database connection
+         * @param:  id The user ID
          * @return: None
          */
 
@@ -150,7 +158,7 @@ public class Test
         ResultSet rs = pstmt.executeQuery();
 
         // check if reservation exists and isn't active
-        if(!rs.next()){
+        if (!rs.next()) {
             System.out.println("No Reservations Found to be Cancelled");
             return;
         }
@@ -158,12 +166,12 @@ public class Test
         Scanner scan = new Scanner(System.in);
         System.out.println("Type 'DELETE' to delete this reservation. ");
         String input = scan.nextLine();
-        if(input.equals("DELETE")){
+        if (input.equals("DELETE")) {
 
             // add deleted reservation to USERS_SERVICES_HISTORY
             query = "INSERT INTO USERS_SERVICES_HISTORY (USER_ID, COMPLETED_FLAG, CANCELLED_FLAG, SERVICE_ID, DATE_TIME, DURATION_PICKED, COST)\n" +
                     "VALUES ('" + rs.getString("USER_ID") + "', '0', '1', '" + rs.getString("SERVICE_ID") + "', '" +
-                    rs.getString("TIME_STARTED") + "', '" + rs.getString("DURATION_PICKED") + "', '225')";
+                    rs.getString("TIME_STARTED") + "', '" + rs.getString("DURATION_PICKED") + "', '225')"; //TODO the cost needs to be changed
             pstmt = conn.prepareStatement(query);
             pstmt.executeUpdate();
 
@@ -177,8 +185,7 @@ public class Test
         System.out.println("Cancellation terminated, returning to application."); // return to main application
     }
 
-    public static boolean authentication(Connection conn, String userID, String password) throws SQLException
-    {
+    public static boolean authentication(Connection conn, String userID, String password) throws SQLException {
         boolean check = true;
 
         //Preparing the Query
@@ -192,14 +199,11 @@ public class Test
         ResultSet rs = pstmt.executeQuery();
 
         //Iterating Over Query Results
-        if (!rs.next())
-        {
+        if (!rs.next()) {
             System.out.println("User Not Found");
             check = false;
-        } else
-        {
-            if (rs.getBoolean("ADMIN_FLAG"))
-            {
+        } else {
+            if (rs.getBoolean("ADMIN_FLAG")) {
 
                 String sql2 = "SELECT A.user_id " +
                         "FROM ADMINS A " +
@@ -214,12 +218,10 @@ public class Test
 
                 //Executing Query
                 ResultSet rs2 = pstmt2.executeQuery();
-                if (rs2.next())
-                {
+                if (rs2.next()) {
                     System.out.println("\n     WELCOME TO MiYE    ");
                     System.out.println("==========================");
-                } else
-                {
+                } else {
                     check = false;
                 }
 
@@ -230,16 +232,13 @@ public class Test
         return check;
     }
 
-    public static void main(String[] args) throws SQLException
-    {
+    public static void main(String[] args) throws SQLException {
 
         //Connection to DataBase
         Connection con;
-        try
-        {
+        try {
             con = connect();
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             System.out.println("\nERROR ON CONNECTING TO SQL DATABASE\n " + e);
             return;
         }
@@ -249,19 +248,16 @@ public class Test
         String password;
         System.out.println("Type EXIT to exit.");
 
-        do
-        {
+        do {
             Scanner scan = new Scanner(System.in);
             System.out.print("Please Enter Your User Name: ");
             userIn = scan.nextLine();
             System.out.print("Please Enter Your Password: ");
             password = scan.nextLine();
 
-            if (authentication(con, userIn, password))
-            {
+            if (authentication(con, userIn, password)) {
 
-                while (userIn.compareTo("EXIT") != 0)
-                {
+                while (userIn.compareTo("EXIT") != 0) {
 
                     //Prompt for User Input
                     System.out.println("\n\n" +
@@ -279,10 +275,9 @@ public class Test
                     userIn = scan.nextLine();
 
                     //Checking Input
-                    switch (userIn.toUpperCase())
-                    {
+                    switch (userIn.toUpperCase()) {
                         case "VU":
-//                    printUsers(con);
+                            printUsers(con);
                             break;
                         case "VS":
                             printServices(con);
@@ -296,7 +291,6 @@ public class Test
                             checkCurrentServices(con, userIn);
                             break;
                         case "CR":
-                            //TODO delete reservations
                             System.out.println("Please input User ID: ");
                             userIn = scan.nextLine();
                             cancelReservation(con, userIn);
@@ -307,7 +301,7 @@ public class Test
                             System.out.println("Invalid Command\n");
                     }
                 }
-            }else{
+            } else {
                 System.out.println("Invalid Login - Please Try Again!");
             }
         } while (userIn.compareTo("EXIT") != 0);
