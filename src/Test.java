@@ -2,6 +2,8 @@ import java.sql.Connection;
 import java.sql.*;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Scanner;
 
 
@@ -23,38 +25,6 @@ public class Test {
             System.out.println(e.getMessage());
         }
         return conn;
-    }
-
-    //TODO: MAKE THIS METHOD NAME MORE DESCRIPTIVE
-    public static void checkCurrentServices(Connection conn, String id) throws SQLException {
-
-        String sql = "SELECT USERS.USER_ID as \"ID\", USERS.F_NAME AS \"First Name\", USERS.L_NAME AS \"Last Name\", USERS.GENDER AS \"Gender\",USERS_ACTIVE_SERVICES.TIME_STARTED AS \"Start Time\",  SERVICES.SERVICE_NAME AS \"Service\", USERS_ACTIVE_SERVICES.TIME_STARTED AS \"Start Time\", USERS_ACTIVE_SERVICES.DURATION_PICKED AS \"Duration\" FROM USERS \n" +
-                "JOIN USERS_ACTIVE_SERVICES ON USERS_ACTIVE_SERVICES.USER_ID = USERS.USER_ID\n" +
-                "JOIN SERVICES ON SERVICES.SERVICE_ID = USERS_ACTIVE_SERVICES.SERVICE_ID\n" +
-                "WHERE USERS.USER_ID = USERS_ACTIVE_SERVICES.USER_ID AND USERS.USER_ID = ?";
-
-
-        PreparedStatement pstmt = conn.prepareStatement(sql);
-
-        pstmt.setString(1, id);
-
-        ResultSet rs = pstmt.executeQuery();
-
-        // loop through the result set
-        if (!rs.next()) {
-            System.out.println("No Reservations Currently Made Under That User");
-        } else {
-            do {
-                System.out.println("\n     ACTIVE RESERVATIONS     ");
-                System.out.println("===============================");
-                System.out.println(
-                        "\n" + rs.getString("ID") + ": " + rs.getString("Last Name") + ", " +
-                                rs.getString("First Name") + "\n" +
-                                rs.getString("Service") + "\n" + "Date-Time: " + rs.getString("Start Time") +
-                                "\t" + "Duration: " + rs.getInt("Duration") + "min\n");
-            } while (rs.next());
-        }
-
     }
 
     public static void printUsers(Connection conn) throws SQLException {
@@ -82,36 +52,170 @@ public class Test {
         } while (rs.next());
     }
 
-    public static void printReservations(Connection conn) throws SQLException {
-
-        //Preparing the Query
-        String sql = "" +
-                "SELECT " +
-                "U.USER_ID, U.L_NAME, U.F_NAME, S.SERVICE_ID, S.SERVICE_NAME, H.DATE_TIME, H.DURATION_PICKED, H.COST " +
-                "FROM SERVICES S " +
-                "JOIN USERS_SERVICES_HISTORY H ON S.SERVICE_ID = H.SERVICE_ID " +
-                "JOIN USERS U ON H.USER_ID = U.USER_ID " +
-                "WHERE H.COMPLETED_FLAG = 0 AND H.CANCELLED_FLAG = 0;";
-        PreparedStatement pstmt = conn.prepareStatement(sql);
-
-        //Executing Query
-        ResultSet rs = pstmt.executeQuery();
+    public static boolean printReservationRS(ResultSet rs) throws SQLException{
 
         //Iterating Over Query Results
         if (!rs.next()) {
-            System.out.println("No Reservations Currently Made");
+
+            System.out.println("\nNo Reservations");
+            return false;
+
         } else {
+
             System.out.println("\n     RESERVATIONS    ");
             System.out.println("=======================");
+
             do {
-                System.out.println("\n" + rs.getString("USER_ID") + ": " + rs.getString("L_NAME") + ", " +
-                        rs.getString("F_NAME") + "\n" + rs.getString("SERVICE_ID") + ": " +
+                System.out.println("\n" + "Reservation ID: " + rs.getString("RESERVATION_ID") + "\n" +
+                        "User: (" + rs.getString("USER_ID") + ") " + rs.getString("L_NAME") + ", " +
+                        rs.getString("F_NAME") + "\nService: (" + rs.getString("SERVICE_ID") + ") " +
                         rs.getString("SERVICE_NAME") + "\n" + "Date-Time: " + rs.getString("DATE_TIME") +
                         "\t" + "Duration: " + rs.getInt("DURATION_PICKED") + "min\n" + "Total Cost: $" +
                         rs.getFloat("COST")
                 );
             } while (rs.next());
+
+            return true;
+
         }
+
+    }
+
+    public static void printPastReservations(Connection conn) throws SQLException {
+
+        //Current Date Time
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        System.out.println("Current Date-Time: " + formatter.format(calendar.getTime()));
+
+        //Preparing the Query
+        String sql = "" +
+                " SELECT USH.RESERVATION_ID, U.USER_ID, U.L_NAME, U.F_NAME, S.SERVICE_ID," +
+                " S.SERVICE_NAME, USH.DATE_TIME, USH.DURATION_PICKED, USH.COST" +
+                " FROM SERVICES S" +
+                " JOIN USERS_SERVICES_HISTORY USH ON S.SERVICE_ID = USH.SERVICE_ID " +
+                " JOIN USERS U ON USH.USER_ID = U.USER_ID " +
+                " WHERE USH.DATE_TIME < \'" + formatter.format(calendar.getTime()) + "\'";
+
+        //Executing Query and Printing Formatted Results
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        ResultSet rs = pstmt.executeQuery();
+        printReservationRS(rs);
+
+    }
+
+    public static void printFutureReservations(Connection conn) throws SQLException {
+
+        //Current Date Time
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        System.out.println("Current Date-Time: " + formatter.format(calendar.getTime()));
+
+        //Preparing the Query
+        String sql = "" +
+                " SELECT USH.RESERVATION_ID, U.USER_ID, U.L_NAME, U.F_NAME, S.SERVICE_ID," +
+                " S.SERVICE_NAME, USH.DATE_TIME, USH.DURATION_PICKED, USH.COST" +
+                " FROM SERVICES S" +
+                " JOIN USERS_SERVICES_HISTORY USH ON S.SERVICE_ID = USH.SERVICE_ID " +
+                " JOIN USERS U ON USH.USER_ID = U.USER_ID " +
+                " WHERE USH.DATE_TIME >= \'" + formatter.format(calendar.getTime()) + "\'";
+
+        //Executing Query and Printing Formatted Results
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        ResultSet rs = pstmt.executeQuery();
+        printReservationRS(rs);
+
+    }
+
+    public static void printAllReservations(Connection conn) throws SQLException {
+
+        //Preparing the Query
+        String sql = "" +
+                " SELECT USH.RESERVATION_ID, U.USER_ID, U.L_NAME, U.F_NAME, S.SERVICE_ID," +
+                " S.SERVICE_NAME, USH.DATE_TIME, USH.DURATION_PICKED, USH.COST" +
+                " FROM SERVICES S" +
+                " JOIN USERS_SERVICES_HISTORY USH ON S.SERVICE_ID = USH.SERVICE_ID" +
+                " JOIN USERS U ON USH.USER_ID = U.USER_ID";
+
+        //Executing Query and Printing Formatted Results
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        ResultSet rs = pstmt.executeQuery();
+        printReservationRS(rs);
+
+    }
+
+    public static boolean listPastReservations(Connection conn, String id) throws SQLException {
+
+        //Current Date Time
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        System.out.println("Current Date-Time: " + formatter.format(calendar.getTime()));
+
+        //Preparing Query
+        String sql = "" +
+                " SELECT USH.RESERVATION_ID, U.USER_ID, U.F_NAME, U.L_NAME, USH.DATE_TIME," +
+                " S.SERVICE_NAME, S.SERVICE_ID, USH.DURATION_PICKED, USH.COST" +
+                " FROM USERS U" +
+                " JOIN USERS_SERVICES_HISTORY USH ON USH.USER_ID = U.USER_ID" +
+                " JOIN SERVICES S ON S.SERVICE_ID = USH.SERVICE_ID" +
+                " WHERE U.USER_ID = USH.USER_ID AND U.USER_ID = ? AND USH.DATE_TIME < \'" + formatter.format(calendar.getTime()) + "\'";
+
+        //Executing Query and Printing Formatted Results
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        pstmt.setString(1, id);
+        ResultSet rs = pstmt.executeQuery();
+        return printReservationRS(rs);
+
+    }
+
+    /**
+     * Lists all the reservation for a specific user.
+     * @param:  conn The database connection
+     * @param:  id The user ID
+     * @return: boolean Whether the user has any reservations (True = One or More, False = None)
+     */
+    public static boolean listFutureReservations(Connection conn, String id) throws SQLException {
+
+        //Current Date Time
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        System.out.println("Current Date-Time: " + formatter.format(calendar.getTime()));
+
+        //Preparing Query
+        String sql = "" +
+                "" +
+                " SELECT USH.RESERVATION_ID, U.USER_ID, U.F_NAME, U.L_NAME, USH.DATE_TIME," +
+                " S.SERVICE_NAME, S.SERVICE_ID, USH.DURATION_PICKED, USH.COST" +
+                " FROM USERS U" +
+                " JOIN USERS_SERVICES_HISTORY USH ON USH.USER_ID = U.USER_ID" +
+                " JOIN SERVICES S ON S.SERVICE_ID = USH.SERVICE_ID" +
+                " WHERE U.USER_ID = USH.USER_ID AND U.USER_ID = ? AND USH.DATE_TIME >= \'" + formatter.format(calendar.getTime()) + "\'";
+
+        //Executing Query and Printing Formatted Results
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        pstmt.setString(1, id);
+        ResultSet rs = pstmt.executeQuery();
+        return printReservationRS(rs);
+
+    }
+
+    public static void listAllReservations(Connection conn, String id) throws SQLException {
+
+        //Preparing Query
+        String sql = "" +
+                "" +
+                " SELECT USH.RESERVATION_ID, U.USER_ID, U.F_NAME, U.L_NAME, USH.DATE_TIME," +
+                " S.SERVICE_NAME, S.SERVICE_ID, USH.DURATION_PICKED, USH.COST" +
+                " FROM USERS U" +
+                " JOIN USERS_SERVICES_HISTORY USH ON USH.USER_ID = U.USER_ID" +
+                " JOIN SERVICES S ON S.SERVICE_ID = USH.SERVICE_ID" +
+                " WHERE U.USER_ID = USH.USER_ID AND U.USER_ID = ?";
+
+        //Executing Query and Printing Formatted Results
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        pstmt.setString(1, id);
+        ResultSet rs = pstmt.executeQuery();
+        printReservationRS(rs);
 
     }
 
@@ -141,46 +245,56 @@ public class Test {
 
     }
 
+    /**
+     * Checks if the user has a reservation they are able to cancel. If an applicable
+     * reservation is able to be cancelled, then it is cancelled, removed from the database,
+     * and the history of the cancelled reservation is recorded in the history table.
+     * @param:  conn The database connection
+     * @param:  id The user ID
+     * @return: None
+     */
     public static void cancelReservation(Connection conn, String id) throws SQLException {
-        /**
-         * Checks if the user has a reservation they are able to cancel. If an applicable
-         * reservation is able to be cancelled, then it is cancelled, removed from the database,
-         * and the history of the cancelled reservation is recorded in the history table.
-         * @param:  conn The database connection
-         * @param:  id The user ID
-         * @return: None
-         */
 
-        // Preparing the Query
-        String query = "SELECT * FROM USERS_ACTIVE_SERVICES WHERE USER_ID=" + id + " AND IN_SERVICE_FLAG=1";
-        PreparedStatement pstmt = conn.prepareStatement(query);
+        //Prints all Reservations Made For/By The User
+        boolean hasReservation = listFutureReservations(conn, id);
 
-        // execute the query
-        ResultSet rs = pstmt.executeQuery();
-
-        // check if reservation exists and isn't active
-        if (!rs.next()) {
+        //Checks if user has any reservations
+        if (!hasReservation) {
             System.out.println("No Reservations Found to be Cancelled");
             return;
         }
 
+        //Choosing which reservation to be cancelled
         Scanner scan = new Scanner(System.in);
-        System.out.println("Type 'DELETE' to delete this reservation. ");
-        String input = scan.nextLine();
-        if (input.equals("DELETE")) {
+        String input;
+        ResultSet rs;
+        String sql = "SELECT * FROM USERS_SERVICES_HISTORY WHERE RESERVATION_ID = ?";
+        PreparedStatement pstmt = conn.prepareStatement(sql);
 
-            // add deleted reservation to USERS_SERVICES_HISTORY
-            query = "INSERT INTO USERS_SERVICES_HISTORY (USER_ID, COMPLETED_FLAG, CANCELLED_FLAG, SERVICE_ID, DATE_TIME, DURATION_PICKED, COST)\n" +
-                    "VALUES ('" + rs.getString("USER_ID") + "', '0', '1', '" + rs.getString("SERVICE_ID") + "', '" +
-                    rs.getString("TIME_STARTED") + "', '" + rs.getString("DURATION_PICKED") + "', '225')"; //TODO the cost needs to be changed
-            pstmt = conn.prepareStatement(query);
-            pstmt.executeUpdate();
+        //Looping Until a Valid Reservation to Cancel is Picked
+        do {
+            System.out.print("Choose a Valid Reservation ID to Cancel or 'EXIT' to go back: ");
 
-            // delete the reservation
-            System.out.println("RESERVATION DELETED.");
-            query = "DELETE FROM USERS_ACTIVE_SERVICES WHERE USER_ID=" + id;
-            pstmt = conn.prepareStatement(query);
+            //Checking input
+            input = scan.nextLine();
+            if(input.compareToIgnoreCase("EXIT") == 0)
+                return;
+
+            pstmt.setString(1, input);
+            rs = pstmt.executeQuery();
+        }
+        while(!rs.next());
+
+        //Confirmation to cancel
+        System.out.print("Type 'CONFIRM' to Cancel This Reservation: ");
+        input = scan.nextLine();
+
+        //Delete the reservation
+        if (input.compareToIgnoreCase("CONFIRM") == 0) {
+            sql = "UPDATE USERS_SERVICES_HISTORY SET CANCELLED_FLAG = True WHERE RESERVATION_ID = \'" + rs.getString("RESERVATION_ID") + "\'";
+            pstmt = conn.prepareStatement(sql);
             pstmt.executeUpdate();
+            System.out.println("RESERVATION CANCELLED");
             return;
         }
         System.out.println("Cancellation terminated, returning to application."); // return to main application
@@ -192,8 +306,6 @@ public class Test {
         //Preparing the Query
         String sql = "SELECT ADMIN_FLAG FROM USERS WHERE USER_ID = ?";
         PreparedStatement pstmt = conn.prepareStatement(sql);
-
-
         pstmt.setString(1, userID);
 
         //Executing Query
@@ -261,15 +373,19 @@ public class Test {
                 while (userIn.compareTo("EXIT") != 0) {
 
                     //Prompt for User Input
-                    System.out.println("\n\n" +
+                    System.out.println("\n" +
                             "Enter a Two-Character Command From the Available Actions\n" +
-                            "[VU]: View Users\n" +
-                            "[VS]: View Services\n" +
-                            "[VR]: View Reservations\n" +
-                            "[UA]: User Active Reservations\n" +
-                            "[CR]: Cancel Reservation\n" +
+                            "[VAU]: View All Users\n" +
+                            "[VAS]: View All Services\n" +
+                            "[VPR]: View Past Reservations\n" +
+                            "[VFR]: View Future Reservations\n" +
+                            "[VAR]: View All Reservations\n" +
+                            "[UPR]: List Past User Reservations\n" +
+                            "[UFR]: List Future User Reservations\n" +
+                            "[UAR]: List All User Reservations\n" +
+                            "[CSR]: Cancel Single Reservation\n" +
                             "[EXIT]: Exit\n" +
-                            "[..]: ...\r" +
+                            "[...]: ...\r" +  // '\r' Prevents this line from being printed
                             "Enter Option: "
                     );
 
@@ -277,24 +393,41 @@ public class Test {
 
                     //Checking Input
                     switch (userIn.toUpperCase()) {
-                        case "VU":
+                        case "VAU":
                             printUsers(con);
                             break;
-                        case "VS":
+                        case "VAS":
                             printServices(con);
                             break;
-                        case "VR":
-                            printReservations(con);
+                        case "VPR":
+                            printPastReservations(con);
                             break;
-                        case "UA":
+                        case "VFR":
+                            printFutureReservations(con);
+                            break;
+                        case "VAR":
+                            printAllReservations(con);
+                            break;
+                        case "UPR":
                             System.out.println("Please input User ID: ");
                             userIn = scan.nextLine();
-                            checkCurrentServices(con, userIn);
+                            listPastReservations(con, userIn);
                             break;
-                        case "CR":
+                        case "UFR":
+                            System.out.println("Please input User ID: ");
+                            userIn = scan.nextLine();
+                            listFutureReservations(con, userIn);
+                            break;
+                        case "UAR":
+                            System.out.println("Please input User ID: ");
+                            userIn = scan.nextLine();
+                            listAllReservations(con, userIn);
+                            break;
+                        case "CSR":
                             System.out.println("Please input User ID: ");
                             userIn = scan.nextLine();
                             cancelReservation(con, userIn);
+                            break;
                         case "EXIT":
                             System.out.println("Exiting...");
                             break;
@@ -307,9 +440,7 @@ public class Test {
             }
         } while (userIn.compareTo("EXIT") != 0);
 
-
         //TODO: ClOSE DB and END CONNECTION PROPERLY ?
-
     }
 
 }
