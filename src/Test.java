@@ -1,10 +1,16 @@
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.*;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Random;
 import java.util.Scanner;
+import java.util.spi.CalendarDataProvider;
 
 
 public class Test {
@@ -14,8 +20,8 @@ public class Test {
         try {
 
             // db parameters
-            //String url = "jdbc:sqlite:tempDB";
-            String url = "jdbc:sqlite:/MiYE_Project/db/MiYEDB.db";
+            String url = "jdbc:sqlite:tempDB";
+            // String url = "jdbc:sqlite:/MiYE_Project/db/MiYEDB.db";
             // create a connection to the database
             conn = DriverManager.getConnection(url);
 
@@ -345,7 +351,184 @@ public class Test {
         return check;
     }
 
-    public static void main(String[] args) throws SQLException {
+    public static int getMaxDurationOptions(Connection conn, String serviceId) throws SQLException
+    {
+        String sql = "SELECT * FROM SERVICES WHERE SERVICE_ID = ?";
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        pstmt.setString(1, serviceId);
+        ResultSet rs = pstmt.executeQuery();
+
+        if (!rs.next()){
+            System.out.println("Service does not exist");
+            return -1;
+        }
+
+        String test = rs.getString("DURATION_OPTIONS");
+        String[] testArray = test.split("/");
+
+        int max = Integer.MIN_VALUE;
+
+        for (String s : testArray) {
+            if (Integer.parseInt(s) > max) {
+                max = Integer.parseInt(s);
+            }
+        }
+
+        return max;
+    }
+
+    public static boolean checkReservationConflicts(Connection conn, String userId, String serviceId, String dateTime, int duration) throws SQLException, ParseException
+    {
+        String mineralBath = "001";
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat inputFormater = new SimpleDateFormat("yyyy-MM-dd hh:mm aa");
+        calendar.setTime(inputFormater.parse(dateTime));
+
+        DateFormat outputFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String aptTime = outputFormatter.format(calendar.getTimeInMillis());
+
+
+        String sql = "SELECT * FROM USERS_SERVICES_HISTORY WHERE SERVICE_ID = ? AND DATE_TIME >= ? AND DATE_TIME <= ?";
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        int maxDuration = getMaxDurationOptions(conn, serviceId);
+        if (maxDuration == -1)
+            return false;
+
+        pstmt.setString(1, serviceId);
+        calendar.add(Calendar.MINUTE,-1*maxDuration);
+        pstmt.setString(2, outputFormatter.format(calendar.getTimeInMillis()));
+        calendar.add(Calendar.MINUTE,maxDuration);
+        calendar.add(Calendar.MINUTE,duration);
+        pstmt.setString(3, outputFormatter.format(calendar.getTimeInMillis()));
+        ResultSet rs = pstmt.executeQuery();
+        if (rs.next() && serviceId.compareTo(mineralBath) != 0){
+            Calendar tempCalendar = Calendar.getInstance();
+            do {
+                if (rs.getInt("DURATION_PICKED") == maxDuration)
+                    return false;
+                tempCalendar.setTime(outputFormatter.parse(rs.getString("DATE_TIME")));
+                tempCalendar.add(Calendar.MINUTE,rs.getInt("DURATION_PICKED"));
+                String temp = outputFormatter.format(tempCalendar.getTimeInMillis());
+                if (temp.compareTo(aptTime) >= 0)
+                    return false;
+            }while (rs.next());
+        }
+
+        String sql2 = "SELECT * FROM USERS_SERVICES_HISTORY WHERE USER_ID = ? AND DATE_TIME >= ? AND DATE_TIME <= ?";
+        PreparedStatement pstmt2 = conn.prepareStatement(sql2);
+        pstmt2.setString(1, userId);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        pstmt2.setString(2, outputFormatter.format(calendar.getTimeInMillis()));
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        pstmt2.setString(3, outputFormatter.format(calendar.getTimeInMillis()));
+        ResultSet rs2 = pstmt2.executeQuery();
+        if (rs2.next()){
+            Calendar tempCalendar2 = Calendar.getInstance();
+            do {
+                tempCalendar2.setTime(outputFormatter.parse(rs2.getString("DATE_TIME")));
+                tempCalendar2.add(Calendar.MINUTE,rs2.getInt("DURATION_PICKED"));
+                String temp = outputFormatter.format(tempCalendar2.getTimeInMillis());
+                if (temp.compareTo(aptTime) >= 0)
+                    return false;
+            }while (rs2.next());
+        }
+
+        return true;
+    }
+
+    public static String generateRandomId() {
+
+        char[] base62chars =
+                "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+                        .toCharArray();
+
+        Random _random = new Random();
+
+        var sb = new StringBuilder(7);
+
+        for (int i=0; i<7; i++)
+            sb.append(base62chars[_random.nextInt(62)]);
+
+        return sb.toString();
+    }
+
+    public static boolean checkUniqueId (Connection conn, String tableName, String id) throws SQLException
+    {
+        String sql;
+        switch (tableName){
+            case "SERVICES":
+                sql = "SELECT * FROM SERVICES WHERE SERVICE_ID = ?";
+                break;
+            case "USERS":
+                sql = "SELECT * FROM USERS WHERE USER_ID = ?";
+                break;
+            case "USERS_SERVICES_HISTORY":
+                sql = "SELECT * FROM USERS_SERVICES_HISTORY WHERE RESERVATION_ID = ?";
+                break;
+            default:
+                System.out.println("Invalid Table");
+                return false;
+        }
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        pstmt.setString(1,id);
+        ResultSet rs = pstmt.executeQuery();
+        if (rs.next()){
+            return false;
+        }
+
+        return true;
+    }
+
+    public static void insertReservation(Connection conn, String userID, String serviceID, String dateTime, int durationPicked) throws SQLException, ParseException
+    {
+
+        boolean check = checkReservationConflicts(conn, userID, serviceID,dateTime,durationPicked);
+        if(!check){
+            System.out.println("Time Conflict Found Unable To Add Reservation");
+            return;
+        }
+        String sql2 = "SELECT PRICE_PER_MINUTE FROM SERVICES WHERE SERVICE_ID = ?";
+        PreparedStatement pstmt2 = conn.prepareStatement(sql2);
+        pstmt2.setString(1, serviceID);
+        ResultSet rs = pstmt2.executeQuery();
+        rs.next();
+        float totalCost = rs.getFloat("PRICE_PER_MINUTE") * durationPicked;
+        String reservationID;
+        do {
+            reservationID = generateRandomId();
+        }while (! checkUniqueId(conn,"USERS_SERVICES_HISTORY",reservationID));
+
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat inputFormater = new SimpleDateFormat("yyyy-MM-dd hh:mm aa");
+        calendar.setTime(inputFormater.parse(dateTime));
+
+        SimpleDateFormat outputFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String aptTime = outputFormatter.format(calendar.getTimeInMillis());
+
+
+        String sql =
+                "INSERT INTO USERS_SERVICES_HISTORY " +
+                        "(RESERVATION_ID, USER_ID, CANCELLED_FLAG, SERVICE_ID, DATE_TIME, DURATION_PICKED, COST)" +
+                        "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        pstmt.setString(1, reservationID);
+        pstmt.setString(2, userID);
+        pstmt.setBoolean(3, false);
+        pstmt.setString(4, serviceID);
+        pstmt.setString(5, aptTime);
+        pstmt.setInt(6, durationPicked);
+        pstmt.setFloat(7, totalCost);
+        pstmt.executeUpdate();
+        System.out.println("Added Reservation");
+
+    }
+
+    public static void main(String[] args) throws SQLException, ParseException
+    {
 
         //Connection to DataBase
         Connection con;
@@ -384,6 +567,7 @@ public class Test {
                             "[UFR]: List Future User Reservations\n" +
                             "[UAR]: List All User Reservations\n" +
                             "[CSR]: Cancel Single Reservation\n" +
+                            "[CAR]: Create A Reservation\n" +
                             "[EXIT]: Exit\n" +
                             "[...]: ...\r" +  // '\r' Prevents this line from being printed
                             "Enter Option: "
@@ -427,6 +611,18 @@ public class Test {
                             System.out.println("Please input User ID: ");
                             userIn = scan.nextLine();
                             cancelReservation(con, userIn);
+                            break;
+                        case "CAR":
+                            System.out.println("Please input User ID: ");
+                            String userID = scan.nextLine();
+                            System.out.println("Please input Service ID: ");
+                            String serviceID = scan.nextLine();
+                            System.out.println("Please input Date Time : yyyy-MM-dd hh:mm (am/pm) ");
+                            String dateTime = scan.nextLine();
+                            System.out.println("Please input Duration ");
+                            int durationPicked = scan.nextInt();
+                            insertReservation(con, userID, serviceID, dateTime, durationPicked);
+                            userIn = scan.nextLine();
                             break;
                         case "EXIT":
                             System.out.println("Exiting...");
