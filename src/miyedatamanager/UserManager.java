@@ -15,7 +15,7 @@ public class UserManager {
         //Default Constructor
     }
 
-    public static void printUsers(Connection conn) throws SQLException {
+    public void printUsers(Connection conn) throws SQLException {
 
         // Preparing the Query
         String query = "SELECT * FROM USERS";
@@ -38,6 +38,21 @@ public class UserManager {
                     rs.getString("F_NAME") + "\n" + "Gender: " + rs.getString("GENDER") + "\n" +
                     "Date Start of Stay: " + rs.getString("DATE_START_OF_STAY") + "\n" + "Date End of Stay: " + rs.getString("DATE_END_OF_STAY"));
         } while (rs.next());
+
+    }
+
+    public boolean userExists(Connection conn, String id) throws SQLException {
+
+        // Preparing the Query
+        String query = "SELECT * FROM USERS WHERE USER_ID=\'" + id + "\'";
+        PreparedStatement pstmt = conn.prepareStatement(query);
+
+        // Execute the Query
+        ResultSet rs = pstmt.executeQuery();
+
+        if(!rs.next())
+            return false;
+        return true;
 
     }
 

@@ -1,12 +1,18 @@
 package miyedatamanager;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.*;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Random;
 import java.util.Scanner;
+import java.util.spi.CalendarDataProvider;
 
 
 public class ServiceManager {
@@ -15,7 +21,33 @@ public class ServiceManager {
         //Default Constructor
     }
 
-    public static void printServices(Connection conn) throws SQLException {
+    public int getMaxDurationOptions(Connection conn, String serviceId) throws SQLException
+    {
+        String sql = "SELECT * FROM SERVICES WHERE SERVICE_ID = ?";
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        pstmt.setString(1, serviceId);
+        ResultSet rs = pstmt.executeQuery();
+
+        if (!rs.next()){
+            System.out.println("Service does not exist");
+            return -1;
+        }
+
+        String test = rs.getString("DURATION_OPTIONS");
+        String[] testArray = test.split("/");
+
+        int max = Integer.MIN_VALUE;
+
+        for (String s : testArray) {
+            if (Integer.parseInt(s) > max) {
+                max = Integer.parseInt(s);
+            }
+        }
+
+        return max;
+    }
+
+    public void printServices(Connection conn) throws SQLException {
 
         //Preparing the Query
         String sql = "SELECT * FROM SERVICES;";

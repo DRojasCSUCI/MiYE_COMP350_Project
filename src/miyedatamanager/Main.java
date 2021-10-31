@@ -1,19 +1,23 @@
 package miyedatamanager;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.*;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Random;
 import java.util.Scanner;
-
-import static miyedatamanager.ConnectionManager.authentication;
+import java.util.spi.CalendarDataProvider;
 
 
 public class Main {
 
-    public static void main(String[] args) throws SQLException {
+    public static void main(String[] args) throws SQLException, ParseException {
 
         //Instantiating Objects Needed for Database Manipulation
         ConnectionManager connMngr = new ConnectionManager();
@@ -33,12 +37,16 @@ public class Main {
         //Terminal Interface
         String userIn;
         String password;
-        System.out.println("Type EXIT to exit.");
 
         do {
             Scanner scan = new Scanner(System.in);
-            System.out.print("Please Enter Your User Name: ");
+
+            System.out.print("Please Enter Your User Name or \'EXIT\': ");
             userIn = scan.nextLine();
+
+            if(userIn.compareToIgnoreCase("EXIT") == 0)
+                return;
+
             System.out.print("Please Enter Your Password: ");
             password = scan.nextLine();
 
@@ -57,6 +65,7 @@ public class Main {
                             "[UPR]: List Past User Reservations\n" +
                             "[UFR]: List Future User Reservations\n" +
                             "[UAR]: List All User Reservations\n" +
+                            "[CAR]: Create A Reservation\n" +
                             "[CSR]: Cancel Single Reservation\n" +
                             "[EXIT]: Exit\n" +
                             "[...]: ...\r" +  // '\r' Prevents this line from being printed
@@ -68,39 +77,51 @@ public class Main {
                     //Checking Input
                     switch (userIn.toUpperCase()) {
                         case "VAU":
-                            UserManager.printUsers(con);
+                            userMngr.printUsers(con);
                             break;
                         case "VAS":
-                            ServiceManager.printServices(con);
+                            srvcMngr.printServices(con);
                             break;
                         case "VPR":
-                            ReservationManager.printPastReservations(con);
+                            rsrvMngr.printPastReservations(con);
                             break;
                         case "VFR":
-                            ReservationManager.printFutureReservations(con);
+                            rsrvMngr.printFutureReservations(con);
                             break;
                         case "VAR":
-                            ReservationManager.printAllReservations(con);
+                            rsrvMngr.printAllReservations(con);
                             break;
                         case "UPR":
                             System.out.println("Please input User ID: ");
                             userIn = scan.nextLine();
-                            ReservationManager.listPastReservations(con, userIn);
+                            rsrvMngr.listPastReservations(con, userIn);
                             break;
                         case "UFR":
                             System.out.println("Please input User ID: ");
                             userIn = scan.nextLine();
-                            ReservationManager.listFutureReservations(con, userIn);
+                            rsrvMngr.listFutureReservations(con, userIn);
                             break;
                         case "UAR":
                             System.out.println("Please input User ID: ");
                             userIn = scan.nextLine();
-                            ReservationManager.listAllReservations(con, userIn);
+                            rsrvMngr.listAllReservations(con, userIn);
+                            break;
+                        case "CAR":
+                            System.out.println("Please input User ID: ");
+                            String userID = scan.nextLine();
+                            System.out.println("Please input Service ID: ");
+                            String serviceID = scan.nextLine();
+                            System.out.println("Please input Date Time : yyyy-MM-dd hh:mm (am/pm) ");
+                            String dateTime = scan.nextLine();
+                            System.out.println("Please input Duration ");
+                            int durationPicked = scan.nextInt();
+                            rsrvMngr.insertReservation(con, userID, serviceID, dateTime, durationPicked);
+                            userIn = scan.nextLine();
                             break;
                         case "CSR":
                             System.out.println("Please input User ID: ");
                             userIn = scan.nextLine();
-                            ReservationManager.cancelReservation(con, userIn);
+                            rsrvMngr.cancelReservation(con, userIn);
                             break;
                         case "EXIT":
                             System.out.println("Exiting...");

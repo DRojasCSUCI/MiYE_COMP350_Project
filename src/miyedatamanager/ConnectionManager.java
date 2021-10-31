@@ -1,17 +1,22 @@
 package miyedatamanager;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.*;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Random;
 import java.util.Scanner;
-
+import java.util.spi.CalendarDataProvider;
 
 public class ConnectionManager {
 
-    public static Connection connect() {
+    public Connection connect() {
         Connection conn = null;
         try {
 
@@ -30,7 +35,7 @@ public class ConnectionManager {
         return conn;
     }
 
-    public static boolean authentication(Connection conn, String userID, String password) throws SQLException {
+    public boolean authentication(Connection conn, String userID, String password) throws SQLException {
         boolean check = true;
 
         //Preparing the Query
