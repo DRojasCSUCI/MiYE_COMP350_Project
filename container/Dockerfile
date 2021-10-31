@@ -158,26 +158,26 @@ RUN mv /MiYE_Project/MiYE_COMP350_Project/lib/sqlite-jdbc-3.36.0.1.jar /MiYE_Pro
 
 ## Build .java into .class files
 
-RUN javac -d /MiYE_Project/class -classpath /MiYE_Project/class/sqlite-jdbc-3.36.0.1.jar /MiYE_Project/MiYE_COMP350_Project/src/Test.java
+# RUN javac -d /MiYE_Project/class -classpath /MiYE_Project/class/sqlite-jdbc-3.36.0.1.jar /MiYE_Project/MiYE_COMP350_Project/src/miyedatamanager/*.java
 
 ### Setting CLASSPATH
 
-ENV CLASSPATH=/MiYE_Project/class
+# ENV CLASSPATH=/MiYE_Project/class
 
 
 
 ### Creating Start-Up Bash Script
 
-RUN echo "#!/bin/bash" > /startapp.sh
-RUN echo "cd /MiYE_Project/class" >> /startapp.sh
-RUN echo "java -cp \".:sqlite-jdbc-3.36.0.1.jar\" Test" >> /startapp.sh
-RUN echo "" >> /startapp.sh
+# RUN echo "#!/bin/bash" > /startapp.sh
+# RUN echo "cd /MiYE_Project/class" >> /startapp.sh
+# RUN echo "java -cp \".:sqlite-jdbc-3.36.0.1.jar\" Test" >> /startapp.sh
+# RUN echo "" >> /startapp.sh
 
 
 
 ### Runnign Start-Up Bash Script
 
-ENTRYPOINT ["bash", "startapp.sh"]
+# ENTRYPOINT ["bash", "startapp.sh"]
 
 
 
