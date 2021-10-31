@@ -1,58 +1,27 @@
+package miyedatamanager;
+
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.*;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Random;
 import java.util.Scanner;
+import java.util.spi.CalendarDataProvider;
 
 
-public class Test {
+public class ReservationManager {
 
-    public static Connection connect() {
-        Connection conn = null;
-        try {
-
-            // db parameters
-            //String url = "jdbc:sqlite:tempDB";
-            String url = "jdbc:sqlite:/MiYE_Project/db/MiYEDB.db";
-            // create a connection to the database
-            conn = DriverManager.getConnection(url);
-
-            System.out.println("Connection to SQLite has been established.");
-
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
-        return conn;
+    public ReservationManager(){
+        //Default constructor
     }
 
-    public static void printUsers(Connection conn) throws SQLException {
-
-        // Preparing the Query
-        String query = "SELECT * FROM USERS";
-        PreparedStatement pstmt = conn.prepareStatement(query);
-
-        // Execute the Query
-        ResultSet rs = pstmt.executeQuery();
-
-        // check if there are users
-        if (!rs.next()) {
-            System.out.println("No Users in Database");
-            return;
-        }
-
-        // loop through and print user information
-        System.out.println("\n    USERS    ");
-        System.out.println("================");
-        do {
-            System.out.println("\n" + rs.getString("USER_ID") + ": " + rs.getString("L_NAME") + ", " +
-                    rs.getString("F_NAME") + "\n" + "Gender: " + rs.getString("GENDER") + "\n" +
-                    "Date Start of Stay: " + rs.getString("DATE_START_OF_STAY") + "\n" + "Date End of Stay: " + rs.getString("DATE_END_OF_STAY"));
-        } while (rs.next());
-    }
-
-    public static boolean printReservationRS(ResultSet rs) throws SQLException{
+    public boolean printReservationRS(ResultSet rs) throws SQLException{
 
         //Iterating Over Query Results
         if (!rs.next()) {
@@ -81,7 +50,7 @@ public class Test {
 
     }
 
-    public static void printPastReservations(Connection conn) throws SQLException {
+    public void printPastReservations(Connection conn) throws SQLException {
 
         //Current Date Time
         Calendar calendar = Calendar.getInstance();
@@ -104,7 +73,7 @@ public class Test {
 
     }
 
-    public static void printFutureReservations(Connection conn) throws SQLException {
+    public void printFutureReservations(Connection conn) throws SQLException {
 
         //Current Date Time
         Calendar calendar = Calendar.getInstance();
@@ -127,7 +96,7 @@ public class Test {
 
     }
 
-    public static void printAllReservations(Connection conn) throws SQLException {
+    public void printAllReservations(Connection conn) throws SQLException {
 
         //Preparing the Query
         String sql = "" +
@@ -144,7 +113,7 @@ public class Test {
 
     }
 
-    public static boolean listPastReservations(Connection conn, String id) throws SQLException {
+    public boolean listPastReservations(Connection conn, String id) throws SQLException {
 
         //Current Date Time
         Calendar calendar = Calendar.getInstance();
@@ -174,7 +143,7 @@ public class Test {
      * @param:  id The user ID
      * @return: boolean Whether the user has any reservations (True = One or More, False = None)
      */
-    public static boolean listFutureReservations(Connection conn, String id) throws SQLException {
+    public boolean listFutureReservations(Connection conn, String id) throws SQLException {
 
         //Current Date Time
         Calendar calendar = Calendar.getInstance();
@@ -199,7 +168,7 @@ public class Test {
 
     }
 
-    public static void listAllReservations(Connection conn, String id) throws SQLException {
+    public void listAllReservations(Connection conn, String id) throws SQLException {
 
         //Preparing Query
         String sql = "" +
@@ -219,32 +188,6 @@ public class Test {
 
     }
 
-    public static void printServices(Connection conn) throws SQLException {
-
-        //Preparing the Query
-        String sql = "SELECT * FROM SERVICES;";
-        PreparedStatement pstmt = conn.prepareStatement(sql);
-
-        //Executing Query
-        ResultSet rs = pstmt.executeQuery();
-
-        //Iterating Over Query Results
-        if (!rs.next()) {
-            System.out.println("No Services Have Been Added");
-        } else {
-            System.out.println("\n     SERVICES    ");
-            System.out.println("===================");
-            do {
-                System.out.println("\n" + rs.getString("SERVICE_ID") + ": " + rs.getString("SERVICE_NAME") +
-                        "\nDescription: " + rs.getString("SERVICE_DESC") + "\nPrice Per Minute: $" +
-                        rs.getFloat("PRICE_PER_MINUTE") + "\nDuration Options: " +
-                        rs.getString("DURATION_OPTIONS")
-                );
-            } while (rs.next());
-        }
-
-    }
-
     /**
      * Checks if the user has a reservation they are able to cancel. If an applicable
      * reservation is able to be cancelled, then it is cancelled, removed from the database,
@@ -253,7 +196,7 @@ public class Test {
      * @param:  id The user ID
      * @return: None
      */
-    public static void cancelReservation(Connection conn, String id) throws SQLException {
+    public void cancelReservation(Connection conn, String id) throws SQLException {
 
         //Prints all Reservations Made For/By The User
         boolean hasReservation = listFutureReservations(conn, id);
@@ -300,147 +243,182 @@ public class Test {
         System.out.println("Cancellation terminated, returning to application."); // return to main application
     }
 
-    public static boolean authentication(Connection conn, String userID, String password) throws SQLException {
-        boolean check = true;
+    public boolean checkReservationConflicts(Connection conn, String userId, String serviceId, String dateTime, int duration) throws SQLException, ParseException
+    {
+        ServiceManager srvcManager = new ServiceManager();
 
-        //Preparing the Query
-        String sql = "SELECT ADMIN_FLAG FROM USERS WHERE USER_ID = ?";
+        String mineralBath = "001";
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat inputFormater = new SimpleDateFormat("yyyy-MM-dd hh:mm aa");
+        calendar.setTime(inputFormater.parse(dateTime));
+
+        DateFormat outputFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String aptTime = outputFormatter.format(calendar.getTimeInMillis());
+
+
+        String sql = "SELECT * FROM USERS_SERVICES_HISTORY WHERE SERVICE_ID = ? AND DATE_TIME >= ? AND DATE_TIME <= ?";
+
         PreparedStatement pstmt = conn.prepareStatement(sql);
-        pstmt.setString(1, userID);
 
-        //Executing Query
+        int maxDuration = srvcManager.getMaxDurationOptions(conn, serviceId);
+        if (maxDuration == -1)
+            return false;
+
+        pstmt.setString(1, serviceId);
+        calendar.add(Calendar.MINUTE,-1*maxDuration);
+        pstmt.setString(2, outputFormatter.format(calendar.getTimeInMillis()));
+        calendar.add(Calendar.MINUTE,maxDuration);
+        calendar.add(Calendar.MINUTE,duration);
+        pstmt.setString(3, outputFormatter.format(calendar.getTimeInMillis()));
+
         ResultSet rs = pstmt.executeQuery();
 
-        //Iterating Over Query Results
-        if (!rs.next()) {
-            System.out.println("User Not Found");
-            check = false;
-        } else {
-            if (rs.getBoolean("ADMIN_FLAG")) {
+        if (rs.next() && serviceId.compareTo(mineralBath) != 0){
+            Calendar tempCalendar = Calendar.getInstance();
+            do {
 
-                String sql2 = "SELECT A.user_id " +
-                        "FROM ADMINS A " +
-                        "JOIN USERS U ON U.user_id = A.user_id " +
-                        "WHERE A.user_id = ? AND A.ADMIN_KEY = ?";
+                if (rs.getInt("DURATION_PICKED") == maxDuration)
+                    return false;
 
-                PreparedStatement pstmt2 = conn.prepareStatement(sql2);
+                tempCalendar.setTime(outputFormatter.parse(rs.getString("DATE_TIME")));
+                tempCalendar.add(Calendar.MINUTE,rs.getInt("DURATION_PICKED"));
+                String temp = outputFormatter.format(tempCalendar.getTimeInMillis());
 
+                if (temp.compareTo(aptTime) >= 0)
+                    return false;
 
-                pstmt2.setString(1, userID);
-                pstmt2.setString(2, password);
-
-                //Executing Query
-                ResultSet rs2 = pstmt2.executeQuery();
-                if (rs2.next()) {
-                    System.out.println("\n     WELCOME TO MiYE    ");
-                    System.out.println("==========================");
-                } else {
-                    check = false;
-                }
-
-
-            }
-
+            }while (rs.next());
         }
-        return check;
+
+        String sql2 = "SELECT * FROM USERS_SERVICES_HISTORY WHERE USER_ID = ? AND DATE_TIME >= ? AND DATE_TIME <= ?";
+        PreparedStatement pstmt2 = conn.prepareStatement(sql2);
+
+        pstmt2.setString(1, userId);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        pstmt2.setString(2, outputFormatter.format(calendar.getTimeInMillis()));
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        pstmt2.setString(3, outputFormatter.format(calendar.getTimeInMillis()));
+
+        ResultSet rs2 = pstmt2.executeQuery();
+
+        if (rs2.next()){
+            Calendar tempCalendar2 = Calendar.getInstance();
+            do {
+
+                tempCalendar2.setTime(outputFormatter.parse(rs2.getString("DATE_TIME")));
+                tempCalendar2.add(Calendar.MINUTE,rs2.getInt("DURATION_PICKED"));
+                String temp = outputFormatter.format(tempCalendar2.getTimeInMillis());
+
+                if (temp.compareTo(aptTime) >= 0)
+                    return false;
+
+            }while (rs2.next());
+        }
+
+        return true;
     }
 
-    public static void main(String[] args) throws SQLException {
+    public String generateRandomId() {
 
-        //Connection to DataBase
-        Connection con;
-        try {
-            con = connect();
-        } catch (Exception e) {
-            System.out.println("\nERROR ON CONNECTING TO SQL DATABASE\n " + e);
+        char[] base62chars =
+                "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+                        .toCharArray();
+
+        Random _random = new Random();
+
+        var sb = new StringBuilder(7);
+
+        for (int i=0; i<7; i++)
+            sb.append(base62chars[_random.nextInt(62)]);
+
+        return sb.toString();
+    }
+
+    public boolean checkUniqueId (Connection conn, String tableName, String id) throws SQLException
+    {
+        String sql;
+
+        switch (tableName){
+            case "SERVICES":
+                sql = "SELECT * FROM SERVICES WHERE SERVICE_ID = ?";
+                break;
+            case "USERS":
+                sql = "SELECT * FROM USERS WHERE USER_ID = ?";
+                break;
+            case "USERS_SERVICES_HISTORY":
+                sql = "SELECT * FROM USERS_SERVICES_HISTORY WHERE RESERVATION_ID = ?";
+                break;
+            default:
+                System.out.println("Invalid Table");
+                return false;
+        }
+
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        pstmt.setString(1,id);
+        ResultSet rs = pstmt.executeQuery();
+
+        if (rs.next()){
+            return false;
+        }
+        return true;
+
+    }
+
+    public void insertReservation(Connection conn, String userID, String serviceID, String dateTime, int durationPicked) throws SQLException, ParseException
+    {
+        UserManager usrMngr = new UserManager();
+        boolean check = usrMngr.userExists(conn, userID);
+        if(!check){
+            System.out.println("ERROR: User ID \'" + userID + "\' Does Not Exist, Unable To Add Reservation");
             return;
         }
 
-        //Terminal Interface
-        String userIn;
-        String password;
-        System.out.println("Type EXIT to exit.");
+        check = checkReservationConflicts(conn, userID, serviceID,dateTime,durationPicked);
+        if(!check){
+            System.out.println("ERROR: Time Conflict Found, Unable To Add Reservation");
+            return;
+        }
 
+        String sql2 = "SELECT PRICE_PER_MINUTE FROM SERVICES WHERE SERVICE_ID = ?";
+        PreparedStatement pstmt2 = conn.prepareStatement(sql2);
+        pstmt2.setString(1, serviceID);
+        ResultSet rs = pstmt2.executeQuery();
+        rs.next();
+
+        float totalCost = rs.getFloat("PRICE_PER_MINUTE") * durationPicked;
+
+        String reservationID;
         do {
-            Scanner scan = new Scanner(System.in);
-            System.out.print("Please Enter Your User Name: ");
-            userIn = scan.nextLine();
-            System.out.print("Please Enter Your Password: ");
-            password = scan.nextLine();
+            reservationID = generateRandomId();
+        }while (! checkUniqueId(conn,"USERS_SERVICES_HISTORY",reservationID));
 
-            if (authentication(con, userIn, password)) {
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat inputFormater = new SimpleDateFormat("yyyy-MM-dd hh:mm aa");
+        calendar.setTime(inputFormater.parse(dateTime));
 
-                while (userIn.compareTo("EXIT") != 0) {
+        SimpleDateFormat outputFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String aptTime = outputFormatter.format(calendar.getTimeInMillis());
 
-                    //Prompt for User Input
-                    System.out.println("\n" +
-                            "Enter a Two-Character Command From the Available Actions\n" +
-                            "[VAU]: View All Users\n" +
-                            "[VAS]: View All Services\n" +
-                            "[VPR]: View Past Reservations\n" +
-                            "[VFR]: View Future Reservations\n" +
-                            "[VAR]: View All Reservations\n" +
-                            "[UPR]: List Past User Reservations\n" +
-                            "[UFR]: List Future User Reservations\n" +
-                            "[UAR]: List All User Reservations\n" +
-                            "[CSR]: Cancel Single Reservation\n" +
-                            "[EXIT]: Exit\n" +
-                            "[...]: ...\r" +  // '\r' Prevents this line from being printed
-                            "Enter Option: "
-                    );
 
-                    userIn = scan.nextLine();
+        String sql =
+                "INSERT INTO USERS_SERVICES_HISTORY " +
+                        "(RESERVATION_ID, USER_ID, CANCELLED_FLAG, SERVICE_ID, DATE_TIME, DURATION_PICKED, COST)" +
+                        "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        pstmt.setString(1, reservationID);
+        pstmt.setString(2, userID);
+        pstmt.setBoolean(3, false);
+        pstmt.setString(4, serviceID);
+        pstmt.setString(5, aptTime);
+        pstmt.setInt(6, durationPicked);
+        pstmt.setFloat(7, totalCost);
+        pstmt.executeUpdate();
+        System.out.println("Added Reservation");
 
-                    //Checking Input
-                    switch (userIn.toUpperCase()) {
-                        case "VAU":
-                            printUsers(con);
-                            break;
-                        case "VAS":
-                            printServices(con);
-                            break;
-                        case "VPR":
-                            printPastReservations(con);
-                            break;
-                        case "VFR":
-                            printFutureReservations(con);
-                            break;
-                        case "VAR":
-                            printAllReservations(con);
-                            break;
-                        case "UPR":
-                            System.out.println("Please input User ID: ");
-                            userIn = scan.nextLine();
-                            listPastReservations(con, userIn);
-                            break;
-                        case "UFR":
-                            System.out.println("Please input User ID: ");
-                            userIn = scan.nextLine();
-                            listFutureReservations(con, userIn);
-                            break;
-                        case "UAR":
-                            System.out.println("Please input User ID: ");
-                            userIn = scan.nextLine();
-                            listAllReservations(con, userIn);
-                            break;
-                        case "CSR":
-                            System.out.println("Please input User ID: ");
-                            userIn = scan.nextLine();
-                            cancelReservation(con, userIn);
-                            break;
-                        case "EXIT":
-                            System.out.println("Exiting...");
-                            break;
-                        default:
-                            System.out.println("Invalid Command\n");
-                    }
-                }
-            } else {
-                System.out.println("Invalid Login - Please Try Again!");
-            }
-        } while (userIn.compareTo("EXIT") != 0);
-
-        //TODO: ClOSE DB and END CONNECTION PROPERLY ?
     }
 
 }
