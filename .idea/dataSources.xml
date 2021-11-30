@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="tempDB" uuid="75d3bf08-dccb-42f0-88b3-a9d83d753042">
+    <data-source source="LOCAL" name="tempDB" uuid="92da46b1-da7e-4085-ad1f-ec236c88bf10">
       <driver-ref>sqlite.xerial</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
-      <jdbc-url>jdbc:sqlite:C:\Users\polar\Desktop\COMP350\MiYE_DB\MiYE_COMP350_Project\tempDB</jdbc-url>
+      <jdbc-url>jdbc:sqlite:C:\Users\Shane Vea\Desktop\New folder\tutorial-vaadin10-\tutorial-vaadin10-\tempDB</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
       <libraries>
         <library>
-          <url>file://$APPLICATION_CONFIG_DIR$/jdbc-drivers/Xerial SQLiteJDBC/3.31.1/license.txt</url>
-        </library>
-        <library>
-          <url>file://$APPLICATION_CONFIG_DIR$/jdbc-drivers/Xerial SQLiteJDBC/3.31.1/sqlite-jdbc-3.31.1.jar</url>
+          <url>file://$APPLICATION_CONFIG_DIR$/jdbc-drivers/Xerial SQLiteJDBC/3.34.0/sqlite-jdbc-3.34.0.jar</url>
         </library>
       </libraries>
     </data-source>

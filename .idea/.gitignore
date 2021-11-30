@@ -1,5 +1,8 @@
 # Default ignored files
+/shelf/
 /workspace.xml
 # Datasource local storage ignored files
+/../../../../../../../:\Users\Shane Vea\Downloads\tutorial-vaadin10-\tutorial-vaadin10-\.idea/dataSources/
 /dataSources.local.xml
-/dataSources/
+# Editor-based HTTP Client requests
+/httpRequests/
