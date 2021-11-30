@@ -189,12 +189,12 @@ public class CustomerService {
 
 			ResultSet rs = userMngr.getCustomer(con);
 
+			Random r = new Random(0);
+
 			while(rs.next())
 			{
 				// Creating new customer
 				Customer c = new Customer();
-
-				Random r = new Random(0);
 
 				c.setFirstName(rs.getString("F_NAME"));
 				c.setLastName(rs.getString("L_NAME"));
