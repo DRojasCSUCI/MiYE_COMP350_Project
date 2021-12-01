@@ -47,7 +47,7 @@
      part of our program.
 
 
-## How to Stop the Program:
+## STOP PROGRAM EXECUTION:
   
   While the program is running, navigate to the terminal window which the run script opened once it
   was executed. Hit 'CTRL + C' within the terminal window once to allow the script to move on to its
