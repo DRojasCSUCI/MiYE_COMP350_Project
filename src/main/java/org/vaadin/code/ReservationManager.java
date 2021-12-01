@@ -278,6 +278,15 @@ public class ReservationManager {
         return sb.toString();
     }
 
+    public void cancelReservation(Connection conn, String id) throws SQLException {
+        System.out.println("I'M IN CANCEL RESERVATION");
+        String sql = "DELETE FROM USERS_SERVICES_HISTORY WHERE RESERVATION_ID = \'" + id + "\'";
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        pstmt = conn.prepareStatement(sql);
+        System.out.println(id);pstmt.executeUpdate();
+        System.out.println("I'm DONE WITH CANCEL RESERVATION");
+    }
+
     public boolean checkUniqueId (Connection conn, String tableName, String id) throws SQLException
     {
         String sql;
