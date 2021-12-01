@@ -39,7 +39,13 @@ public class CustomerForm extends FormLayout {
 
         binder.bindInstanceFields(this);
 
-        save.addClickListener(event -> save());
+        save.addClickListener(event -> {
+            try {
+                save();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
         delete.addClickListener(event -> delete());
     }
 
@@ -54,7 +60,7 @@ public class CustomerForm extends FormLayout {
         }
     }
 
-    private void save() {
+    private void save() throws SQLException {
         Customer customer = binder.getBean();
         service.save(customer);
         mainView.updateList();

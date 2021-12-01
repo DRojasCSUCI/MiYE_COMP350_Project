@@ -62,7 +62,6 @@ public class UserManager {
         PreparedStatement pstmt = conn.prepareStatement(query);
 
         // Execute the Query
-
         return pstmt.executeQuery();
     }
 
