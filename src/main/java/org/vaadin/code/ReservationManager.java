@@ -188,6 +188,18 @@ public class ReservationManager {
 
     }
 
+    public ResultSet getAllReservations(Connection conn) throws SQLException {
+
+        //Preparing Query
+        String sql = "SELECT * FROM USERS_SERVICES_HISTORY";
+
+        //Executing Query and Printing Formatted Results
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        ResultSet rs = pstmt.executeQuery();
+        return rs;
+
+    }
+
     /**
      * Checks if the user has a reservation they are able to cancel. If an applicable
      * reservation is able to be cancelled, then it is cancelled, removed from the database,
