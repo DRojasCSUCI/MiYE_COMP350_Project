@@ -100,4 +100,13 @@ public class UserManager {
         return pstmt.executeQuery();
     }
 
+    public ResultSet getUser(Connection conn, String userId) throws SQLException
+    {
+        String query = "SELECT * FROM USERS WHERE USER_ID = \'" + userId + "\'";
+        PreparedStatement pstmt = conn.prepareStatement(query);
+
+        // Execute the Query
+        return pstmt.executeQuery();
+    }
+
 }

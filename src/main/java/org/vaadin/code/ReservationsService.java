@@ -200,8 +200,6 @@ public class ReservationsService {
 
             ResultSet rs = resvMngr.printAllReservations(con);
 
-            Random r = new Random(0);
-
             while(rs.next())
             {
                 // Creating new Reservations

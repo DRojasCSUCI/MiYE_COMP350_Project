@@ -30,6 +30,7 @@ public class ReservationsView extends VerticalLayout {
         Button addReservationBtn = new Button("Add new reservation");
         addReservationBtn.addClickListener(e -> {
             grid.asSingleSelect().clear();
+            form.setNewReservation(true);
             form.setReservations(new Reservations());
         });
 

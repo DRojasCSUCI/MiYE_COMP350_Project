@@ -115,7 +115,7 @@ public class Main {
                             String dateTime = scan.nextLine();
                             System.out.println("Please input Duration ");
                             int durationPicked = scan.nextInt();
-                            rsrvMngr.insertReservation(con, userID, serviceID, dateTime, durationPicked);
+//                            rsrvMngr.insertReservation(con, userID, serviceID, dateTime, durationPicked);
                             userIn = scan.nextLine();
                             break;
                         case "CSR":

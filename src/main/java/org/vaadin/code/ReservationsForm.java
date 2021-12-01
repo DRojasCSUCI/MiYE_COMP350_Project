@@ -13,16 +13,24 @@ import org.graalvm.compiler.hotspot.nodes.profiling.ProfileNode;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalUnit;
+import java.util.Calendar;
+import java.util.EventListener;
 
 public class ReservationsForm extends FormLayout {
-
-    private TextField reservationId = new TextField("Reservation Id");
-    private TextField serviceId = new TextField("Service Id");
+    private TextField userId = new TextField("User ID");
     private ComboBox<ReservationsStatus> service = new ComboBox<>("Service");
     private DatePicker date = new DatePicker("Date");
     private TimePicker time = new TimePicker("Start Time");
-    //private TimePicker duration = new TimePicker("Duration");
+    private ComboBox<Integer> stepSelector = new ComboBox<>("Duration");
+
+//    private TimePicker duration = new TimePicker("Duration");
 
     private Button save = new Button("Save");
     private Button delete = new Button("Delete");
@@ -31,25 +39,11 @@ public class ReservationsForm extends FormLayout {
     private ReservationsView reservationsView;
     private ReservationsService services = ReservationsService.getInstance();
 
-    private boolean newCustomer = false;
+    private boolean newReservation = false;
 
     public ReservationsForm(ReservationsView reservationsView) throws SQLException {
 
-//        ComboBox<Duration> stepSelector = new ComboBox<>();
-//        stepSelector.setLabel("Duration");
-//        stepSelector.setItems(Duration.ofMillis(500), Duration.ofSeconds(10),
-//                Duration.ofMinutes(1), Duration.ofMinutes(15),
-//                Duration.ofMinutes(30), Duration.ofHours(1));
-//        ProfileNode timePicker = null;
-//        stepSelector.setValue(timePicker.getStep());
-//        stepSelector.addValueChangeListener(event -> {
-//            Duration newStep = event.getValue();
-//            if (newStep != null) {
-//                timePicker.setStep(newStep);
-//
-//            }
-//        });
-
+        // TimePicker timePicker = new TimePicker();
 
         this.reservationsView = reservationsView;
 
@@ -57,22 +51,24 @@ public class ReservationsForm extends FormLayout {
 
         HorizontalLayout buttons = new HorizontalLayout(save, delete);
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        add(reservationId, serviceId, service, date, time, buttons);
+        add(userId, service, date, time, stepSelector, buttons);
 
         binder.bindInstanceFields(this);
 
         save.addClickListener(event -> {
             try {
                 save();
-            } catch (SQLException e) {
+            } catch (SQLException | ParseException e) {
                 e.printStackTrace();
             }
         });
         delete.addClickListener(event -> delete());
+        service.addValueChangeListener(event -> durationTime());
     }
 
-    public void setNewCustomer(boolean newCustomer){
-        this.newCustomer = newCustomer;
+
+    public void setNewReservation(boolean newReservation){
+        this.newReservation = newReservation;
     }
 
     public void setReservations(Reservations reservation) {
@@ -82,15 +78,16 @@ public class ReservationsForm extends FormLayout {
             setVisible(false);
         } else {
             setVisible(true);
-            reservationId.focus();
+            userId.focus();
         }
     }
 
-    private void save() throws SQLException {
+    private void save() throws SQLException, ParseException
+    {
         Reservations reservation = binder.getBean();
 
         // update database
-        UserManager userMger = new UserManager();
+        ReservationManager reservationManager = new ReservationManager();
         // Connection to DataBase
         ConnectionManager connMngr = new ConnectionManager();
         Connection con = null;
@@ -99,26 +96,84 @@ public class ReservationsForm extends FormLayout {
         } catch (Exception e) {
             System.out.println("\nERROR ON CONNECTING TO SQL DATABASE ON SAVE\n " + e);
         }
-        System.out.println("Updated user: " + reservation.getReservationId() + " " + reservation.getServiceId());
-
-//        if(newCustomer)
-//        {
-//            // userMger.createNewUser(con, customer);
-//        }
-//        else
-//        {
-//            userMger.updateUser(con, services);
-//        }
-
 
         // close the connection
         assert con != null;
-        con.close();
+        String serviceId = null;
+        switch (service.getValue()){
 
-        services.save(reservation);
-        reservationsView.updateList();
+            case MineralBath:
+                serviceId = "0000001";
+                break;
+            case SwedishMassage:
+                serviceId = "0000002";
+                break;
+            case ShiatsuMassage:
+                serviceId = "0000003";
+                break;
+            case DeepTissueMassage:
+                serviceId = "0000004";
+                break;
+            case NormalFacial:
+                serviceId = "0000005";
+                break;
+            case CollagenFacial:
+                serviceId = "0000006";
+                break;
+            case HotStone:
+                serviceId = "0000007";
+                break;
+            case SugarScrub:
+                serviceId = "0000008";
+                break;
+            case HerbalBodyWrap:
+                serviceId = "0000009";
+                break;
+            case BotanicalMudWrap:
+                serviceId = "0000010";
+                break;
+            default: newReservation = false;
+        }
+
+        LocalDateTime dateTime = time.getValue().atDate(date.getValue());
+
+        reservation = reservationManager.insertReservation(con, userId.getValue(), serviceId, dateTime, stepSelector.getValue());
+        if(newReservation && reservation != null){
+
+            services.save(reservation);
+            reservationsView.updateList();
+        }
+        con.close();
         setReservations(null);
     }
+
+    private void durationTime(){
+
+        switch (service.getValue()){
+            case SwedishMassage:
+            case ShiatsuMassage:
+            case DeepTissueMassage:
+            case NormalFacial:
+            case CollagenFacial:
+                stepSelector.setLabel("Duration");
+                stepSelector.setItems(30, 60);
+                break;
+            case HotStone:
+            case SugarScrub:
+            case HerbalBodyWrap:
+            case BotanicalMudWrap:
+            case MineralBath:
+                stepSelector.setLabel("Duration");
+                stepSelector.setItems(60, 90);
+                break;
+            default:
+                stepSelector.setLabel("Duration");
+                stepSelector.setItems(30, 60, 90);
+                break;
+        }
+
+    }
+
 
     private void delete() {
         Reservations reservation = binder.getBean();

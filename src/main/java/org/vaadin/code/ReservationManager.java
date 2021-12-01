@@ -1,5 +1,6 @@
 package org.vaadin.code;
 
+import javax.xml.transform.Result;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
@@ -9,6 +10,8 @@ import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Random;
 import java.util.Scanner;
@@ -113,8 +116,9 @@ public class ReservationManager {
 //        printReservationRS(rs);
 
         return rs;
-
     }
+
+
 
     public boolean listPastReservations(Connection conn, String id) throws SQLException {
 
@@ -258,84 +262,78 @@ public class ReservationManager {
         System.out.println("Cancellation terminated, returning to application."); // return to main application
     }
 
-    public boolean checkReservationConflicts(Connection conn, String userId, String serviceId, String dateTime, int duration) throws SQLException, ParseException
-    {
-        ServiceManager srvcManager = new ServiceManager();
-
-        String mineralBath = "001";
-        Calendar calendar = Calendar.getInstance();
-        SimpleDateFormat inputFormater = new SimpleDateFormat("yyyy-MM-dd hh:mm aa");
-        calendar.setTime(inputFormater.parse(dateTime));
-
-        DateFormat outputFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String aptTime = outputFormatter.format(calendar.getTimeInMillis());
-
-
-        String sql = "SELECT * FROM USERS_SERVICES_HISTORY WHERE SERVICE_ID = ? AND DATE_TIME >= ? AND DATE_TIME <= ?";
-
-        PreparedStatement pstmt = conn.prepareStatement(sql);
-
-        int maxDuration = srvcManager.getMaxDurationOptions(conn, serviceId);
-        if (maxDuration == -1)
-            return false;
-
-        pstmt.setString(1, serviceId);
-        calendar.add(Calendar.MINUTE,-1*maxDuration);
-        pstmt.setString(2, outputFormatter.format(calendar.getTimeInMillis()));
-        calendar.add(Calendar.MINUTE,maxDuration);
-        calendar.add(Calendar.MINUTE,duration);
-        pstmt.setString(3, outputFormatter.format(calendar.getTimeInMillis()));
-
-        ResultSet rs = pstmt.executeQuery();
-
-        if (rs.next() && serviceId.compareTo(mineralBath) != 0){
-            Calendar tempCalendar = Calendar.getInstance();
-            do {
-
-                if (rs.getInt("DURATION_PICKED") == maxDuration)
-                    return false;
-
-                tempCalendar.setTime(outputFormatter.parse(rs.getString("DATE_TIME")));
-                tempCalendar.add(Calendar.MINUTE,rs.getInt("DURATION_PICKED"));
-                String temp = outputFormatter.format(tempCalendar.getTimeInMillis());
-
-                if (temp.compareTo(aptTime) >= 0)
-                    return false;
-
-            }while (rs.next());
-        }
-
-        String sql2 = "SELECT * FROM USERS_SERVICES_HISTORY WHERE USER_ID = ? AND DATE_TIME >= ? AND DATE_TIME <= ?";
-        PreparedStatement pstmt2 = conn.prepareStatement(sql2);
-
-        pstmt2.setString(1, userId);
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        pstmt2.setString(2, outputFormatter.format(calendar.getTimeInMillis()));
-        calendar.set(Calendar.HOUR_OF_DAY, 23);
-        calendar.set(Calendar.MINUTE, 59);
-        calendar.set(Calendar.SECOND, 59);
-        pstmt2.setString(3, outputFormatter.format(calendar.getTimeInMillis()));
-
-        ResultSet rs2 = pstmt2.executeQuery();
-
-        if (rs2.next()){
-            Calendar tempCalendar2 = Calendar.getInstance();
-            do {
-
-                tempCalendar2.setTime(outputFormatter.parse(rs2.getString("DATE_TIME")));
-                tempCalendar2.add(Calendar.MINUTE,rs2.getInt("DURATION_PICKED"));
-                String temp = outputFormatter.format(tempCalendar2.getTimeInMillis());
-
-                if (temp.compareTo(aptTime) >= 0)
-                    return false;
-
-            }while (rs2.next());
-        }
-
-        return true;
-    }
+//    public boolean checkReservationConflicts(Connection conn, String userId, String serviceId, LocalDateTime dateTime, int duration) throws SQLException, ParseException
+//    {
+//        ServiceManager srvcManager = new ServiceManager();
+//
+//        String mineralBath = "001";
+//
+//        String sql = "SELECT * FROM USERS_SERVICES_HISTORY WHERE SERVICE_ID = ? AND DATE_TIME >= ? AND DATE_TIME <= ?";
+//
+//        PreparedStatement pstmt = conn.prepareStatement(sql);
+//
+//        int maxDuration = srvcManager.getMaxDurationOptions(conn, serviceId);
+//        if (maxDuration == -1)
+//            return false;
+//
+//
+//        pstmt.setString(1, serviceId);
+//        pstmt.setString(2,  dateTime.plusMinutes(-1*maxDuration).toString());
+//        calendar.add(Calendar.MINUTE,maxDuration);
+//        calendar.add(Calendar.MINUTE,duration);
+//
+//        pstmt.setString(3, outputFormatter.format(calendar.getTimeInMillis()));
+//
+//        ResultSet rs = pstmt.executeQuery();
+//
+//        if (rs.next() && serviceId.compareTo(mineralBath) != 0){
+//            Calendar tempCalendar = Calendar.getInstance();
+//            do {
+//
+//                if (rs.getInt("DURATION_PICKED") == maxDuration)
+//                    return false;
+//
+//                tempCalendar.setTime(outputFormatter.parse(rs.getString("DATE_TIME")));
+//                tempCalendar.add(Calendar.MINUTE,rs.getInt("DURATION_PICKED"));
+//                String temp = outputFormatter.format(tempCalendar.getTimeInMillis());
+//
+//                if (temp.compareTo(aptTime) >= 0)
+//                    return false;
+//
+//            }while (rs.next());
+//        }
+//
+//        String sql2 = "SELECT * FROM USERS_SERVICES_HISTORY WHERE USER_ID = ? AND DATE_TIME >= ? AND DATE_TIME <= ?";
+//        PreparedStatement pstmt2 = conn.prepareStatement(sql2);
+//
+//        pstmt2.setString(1, userId);
+//        calendar.set(Calendar.HOUR_OF_DAY, 0);
+//        calendar.set(Calendar.MINUTE, 0);
+//        calendar.set(Calendar.SECOND, 0);
+//        pstmt2.setString(2, outputFormatter.format(calendar.getTimeInMillis()));
+//        calendar.set(Calendar.HOUR_OF_DAY, 23);
+//        calendar.set(Calendar.MINUTE, 59);
+//        calendar.set(Calendar.SECOND, 59);
+//        pstmt2.setString(3, outputFormatter.format(calendar.getTimeInMillis()));
+//
+//        ResultSet rs2 = pstmt2.executeQuery();
+//
+//        if (rs2.next()){
+//            Calendar tempCalendar2 = Calendar.getInstance();
+//            do {
+//
+//                tempCalendar2.setTime(outputFormatter.parse(rs2.getString("DATE_TIME")));
+//                tempCalendar2.add(Calendar.MINUTE,rs2.getInt("DURATION_PICKED"));
+//                String temp = outputFormatter.format(tempCalendar2.getTimeInMillis());
+//
+//                if (temp.compareTo(aptTime) >= 0)
+//                    return false;
+//
+//            }while (rs2.next());
+//        }
+//
+//        return true;
+//    }
 
     public String generateRandomId() {
 
@@ -383,20 +381,20 @@ public class ReservationManager {
 
     }
 
-    public void insertReservation(Connection conn, String userID, String serviceID, String dateTime, int durationPicked) throws SQLException, ParseException
+    public Reservations insertReservation(Connection conn, String userID, String serviceID, LocalDateTime dateTime, int durationPicked) throws SQLException, ParseException
     {
         UserManager usrMngr = new UserManager();
         boolean check = usrMngr.userExists(conn, userID);
         if(!check){
             System.out.println("ERROR: User ID \'" + userID + "\' Does Not Exist, Unable To Add Reservation");
-            return;
+            return null;
         }
 
-        check = checkReservationConflicts(conn, userID, serviceID,dateTime,durationPicked);
-        if(!check){
-            System.out.println("ERROR: Time Conflict Found, Unable To Add Reservation");
-            return;
-        }
+//        check = checkReservationConflicts(conn, userID, serviceID,dateTime,durationPicked);
+//        if(!check){
+//            System.out.println("ERROR: Time Conflict Found, Unable To Add Reservation");
+//            return false;
+//        }
 
         String sql2 = "SELECT PRICE_PER_MINUTE FROM SERVICES WHERE SERVICE_ID = ?";
         PreparedStatement pstmt2 = conn.prepareStatement(sql2);
@@ -410,14 +408,7 @@ public class ReservationManager {
         do {
             reservationID = generateRandomId();
         }while (! checkUniqueId(conn,"USERS_SERVICES_HISTORY",reservationID));
-
-        Calendar calendar = Calendar.getInstance();
-        SimpleDateFormat inputFormater = new SimpleDateFormat("yyyy-MM-dd hh:mm aa");
-        calendar.setTime(inputFormater.parse(dateTime));
-
-        SimpleDateFormat outputFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String aptTime = outputFormatter.format(calendar.getTimeInMillis());
-
+        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
         String sql =
                 "INSERT INTO USERS_SERVICES_HISTORY " +
@@ -428,11 +419,81 @@ public class ReservationManager {
         pstmt.setString(2, userID);
         pstmt.setBoolean(3, false);
         pstmt.setString(4, serviceID);
-        pstmt.setString(5, aptTime);
+        pstmt.setString(5, dateTime.format(outputFormatter));
         pstmt.setInt(6, durationPicked);
         pstmt.setFloat(7, totalCost);
         pstmt.executeUpdate();
         System.out.println("Added Reservation");
+        Reservations c = new Reservations();
+
+
+        c.setReservationId(reservationID);
+        c.setUserId(userID);
+
+        ConnectionManager connMngr = new ConnectionManager();
+
+        // Connection to DataBase
+        Connection con = null;
+        try {
+            con = connMngr.connect();
+        } catch (Exception e) {
+            System.out.println("\nERROR ON CONNECTING TO SQL DATABASE ON INITIAL POPULATION\n " + e);
+        }
+
+        UserManager userMngr = new UserManager();
+
+        assert con != null;
+        ResultSet resultSet = userMngr.getUser(con, userID);
+
+        c.setFirstName(resultSet.getString("F_NAME"));
+        c.setLastName(resultSet.getString("L_NAME"));
+        c.setServiceId(serviceID);
+
+        String date = dateTime.format(outputFormatter);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime formattedDate = LocalDateTime.parse(date, formatter);
+        c.setDate(formattedDate.toLocalDate());
+        c.setTime(formattedDate.toLocalTime());
+        switch (c.getServiceId())
+        {
+            case "0000001":
+                c.setStatus(ReservationsStatus.MineralBath);
+                break;
+            case "0000002":
+                c.setStatus(ReservationsStatus.SwedishMassage);
+                break;
+            case "0000003":
+                c.setStatus(ReservationsStatus.ShiatsuMassage);
+                break;
+            case "0000004":
+                c.setStatus(ReservationsStatus.DeepTissueMassage);
+                break;
+            case "0000005":
+                c.setStatus(ReservationsStatus.NormalFacial);
+                break;
+            case "0000006":
+                c.setStatus(ReservationsStatus.CollagenFacial);
+                break;
+            case "0000007":
+                c.setStatus(ReservationsStatus.HotStone);
+                break;
+            case "0000008":
+                c.setStatus(ReservationsStatus.SugarScrub);
+                break;
+            case "0000009":
+                c.setStatus(ReservationsStatus.HerbalBodyWrap);
+                break;
+            case "0000010":
+                c.setStatus(ReservationsStatus.BotanicalMudWrap);
+                break;
+        }
+
+        c.setDuration(durationPicked);
+
+        c.setCost(totalCost);
+
+
+        return c;
 
     }
 
