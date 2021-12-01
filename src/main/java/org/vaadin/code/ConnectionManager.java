@@ -21,8 +21,8 @@ public class ConnectionManager {
         try {
 
             //Database Location
-            String url = "jdbc:sqlite:./tempDB";  //Used for testing on local machines
-            // String url = "jdbc:sqlite:/MiYE_Project/db/MiYEDB.db";  //Used for the Docker Image
+            //String url = "jdbc:sqlite:./tempDB";  //Used for testing on local machines
+            String url = "jdbc:sqlite:/MiYE_Project/db/MiYEDB.db";  //Used for the Docker Image
 
             // create a connection to the database
             conn = DriverManager.getConnection(url);
