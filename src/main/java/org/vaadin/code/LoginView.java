@@ -20,8 +20,6 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
         setAlignItems(Alignment.CENTER);
         setJustifyContentMode(JustifyContentMode.CENTER);
 
-        System.out.println(login.getId());
-
         login.setAction("customers");
 
         add(new H1("MiYE"), login);
