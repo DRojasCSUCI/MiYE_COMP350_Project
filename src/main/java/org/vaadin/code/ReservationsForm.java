@@ -9,36 +9,55 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+import org.graalvm.compiler.hotspot.nodes.profiling.ProfileNode;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.Duration;
 
 public class ReservationsForm extends FormLayout {
 
-    private TextField firstName = new TextField("First name");
-    private TextField lastName = new TextField("Last name");
-    private ComboBox<ReservationsStatus> status = new ComboBox<>("Status");
-    private DatePicker startDate = new DatePicker("Date");
-    private TimePicker startTime = new TimePicker("Start Time");
-    private TimePicker endTime = new TimePicker("End Time");
+    private TextField reservationId = new TextField("Reservation Id");
+    private TextField serviceId = new TextField("Service Id");
+    private ComboBox<ReservationsStatus> service = new ComboBox<>("Service");
+    private DatePicker date = new DatePicker("Date");
+    private TimePicker time = new TimePicker("Start Time");
+    //private TimePicker duration = new TimePicker("Duration");
 
     private Button save = new Button("Save");
     private Button delete = new Button("Delete");
 
     private Binder<Reservations> binder = new Binder<>(Reservations.class);
-    private ReservationsView ReservationsView;
-    private ReservationsService service = ReservationsService.getInstance();
+    private ReservationsView reservationsView;
+    private ReservationsService services = ReservationsService.getInstance();
 
-    private boolean newReservations = false;
+    private boolean newCustomer = false;
 
-    public ReservationsForm(ReservationsView ReservationsView) throws SQLException {
-        this.ReservationsView = ReservationsView;
+    public ReservationsForm(ReservationsView reservationsView) throws SQLException {
 
-        status.setItems(ReservationsStatus.values());
+//        ComboBox<Duration> stepSelector = new ComboBox<>();
+//        stepSelector.setLabel("Duration");
+//        stepSelector.setItems(Duration.ofMillis(500), Duration.ofSeconds(10),
+//                Duration.ofMinutes(1), Duration.ofMinutes(15),
+//                Duration.ofMinutes(30), Duration.ofHours(1));
+//        ProfileNode timePicker = null;
+//        stepSelector.setValue(timePicker.getStep());
+//        stepSelector.addValueChangeListener(event -> {
+//            Duration newStep = event.getValue();
+//            if (newStep != null) {
+//                timePicker.setStep(newStep);
+//
+//            }
+//        });
+
+
+        this.reservationsView = reservationsView;
+
+        service.setItems(ReservationsStatus.values());
 
         HorizontalLayout buttons = new HorizontalLayout(save, delete);
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        add(firstName, lastName, status, startDate, startTime, endTime, buttons);
+        add(reservationId, serviceId, service, date, time, buttons);
 
         binder.bindInstanceFields(this);
 
@@ -52,21 +71,23 @@ public class ReservationsForm extends FormLayout {
         delete.addClickListener(event -> delete());
     }
 
-    public void setNewReservations(boolean newReservations){ this.newReservations = newReservations; }
+    public void setNewCustomer(boolean newCustomer){
+        this.newCustomer = newCustomer;
+    }
 
-    public void setReservations(Reservations Reservations) {
-        binder.setBean(Reservations);
+    public void setReservations(Reservations reservation) {
+        binder.setBean(reservation);
 
-        if (Reservations == null) {
+        if (reservation == null) {
             setVisible(false);
         } else {
             setVisible(true);
-            firstName.focus();
+            reservationId.focus();
         }
     }
 
     private void save() throws SQLException {
-        Reservations Reservations = binder.getBean();
+        Reservations reservation = binder.getBean();
 
         // update database
         UserManager userMger = new UserManager();
@@ -78,31 +99,31 @@ public class ReservationsForm extends FormLayout {
         } catch (Exception e) {
             System.out.println("\nERROR ON CONNECTING TO SQL DATABASE ON SAVE\n " + e);
         }
-        // System.out.println("Updated user: " + Reservations.getFirstName() + " " + Reservations.getLastName());
+        System.out.println("Updated user: " + reservation.getReservationId() + " " + reservation.getServiceId());
 
-        if(newReservations)
-        {
-            // userMger.createNewUser(con, Reservations);
-        }
-        else
-        {
-            // userMger.updateUser(con, Reservations);
-        }
+//        if(newCustomer)
+//        {
+//            // userMger.createNewUser(con, customer);
+//        }
+//        else
+//        {
+//            userMger.updateUser(con, services);
+//        }
 
 
         // close the connection
         assert con != null;
         con.close();
 
-        service.save(Reservations);
-        ReservationsView.updateList();
+        services.save(reservation);
+        reservationsView.updateList();
         setReservations(null);
     }
 
     private void delete() {
-        Reservations Reservations = binder.getBean();
-        service.delete(Reservations);
-        ReservationsView.updateList();
+        Reservations reservation = binder.getBean();
+        services.delete(reservation);
+        reservationsView.updateList();
         setReservations(null);
     }
 
