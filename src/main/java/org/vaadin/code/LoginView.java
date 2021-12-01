@@ -22,7 +22,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
 
         System.out.println(login.getId());
 
-        login.setAction("main");
+        login.setAction("customers");
 
         add(new H1("MiYE"), login);
     }
