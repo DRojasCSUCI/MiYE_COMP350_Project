@@ -35,7 +35,7 @@
 
   1: Run the .bat script to containerize the application. Once it is running it will take around
      20 minutes just to build the Dockerfile into an image. It needs to install java and other 
-     dependencies so please be patient. This is a one-time setup thanks to the Docker cache system.
+     dependencies so please be patient. This is partly a one-time setup thanks to the Docker cache system.
      Once the image has been built it will take another 10 minutes to build it into a container
      which will set up its remaining dependencies, and then once you see "[INFO] Started Jetty Server"
      in the terminal window, you know the container has been built and run successfully. 
