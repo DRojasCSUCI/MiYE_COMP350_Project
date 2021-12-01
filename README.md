@@ -1,10 +1,10 @@
 ## GROUP MEMBERS:
 
-# Daniel Rojas,
-# Juan FLores,
-# Shane Vea,
-# Roque Garcia,
-# Jeffrey Foyil
+### Daniel Rojas,
+### Juan FLores,
+### Shane Vea,
+### Roque Garcia,
+### Jeffrey Foyil
 
 
 
