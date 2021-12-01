@@ -1,20 +1,21 @@
-GROUP MEMBERS:
+## GROUP MEMBERS:
 
-Daniel Rojas
-Juan FLores
-Shane Vea
-Roque Garcia
+# Daniel Rojas,
+# Juan FLores,
+# Shane Vea,
+# Roque Garcia,
+# Jeffrey Foyil
 
 
 
-DESCRIPTION:
+## DESCRIPTION:
   
   This is a guide to run Group 4's MiYE_COMP350_Project in a docker container.
   We have decied to provide a Dockerfile rather than a Docker Hub Image due to its size.
 
 
 
-REQUIREMENTS:
+## REQUIREMENTS:
 
  - Windows 10 Operating System
  - Docker Desktop Installed and Running in Background
@@ -22,14 +23,14 @@ REQUIREMENTS:
      
      
 
-CONTAINER FOLDER CONTENTS:
+## CONTAINER FOLDER CONTENTS:
   
   + Dockerfile
   + run_application_incontainer.bat
 
 
 
-INSTRUCTIONS STEPS TO RUN:
+## INSTRUCTIONS STEPS TO RUN:
 
   * Run the .bat script to containerize the application. Once it is running it will take around
     20 minutes just to build the Dockerfile into an image. 
