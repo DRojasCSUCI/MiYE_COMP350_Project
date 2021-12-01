@@ -136,7 +136,20 @@ public class CustomerService {
 	 *            the Customer to be deleted
 	 */
 	public synchronized void delete(Customer value) {
+
 		contacts.remove(value.getId());
+
+		// update database
+
+		// Connection to DataBase
+		ConnectionManager connMngr = new ConnectionManager();
+		Connection con = null;
+		try {
+			con = connMngr.connect();
+		} catch (Exception e) {
+			System.out.println("\nERROR ON CONNECTING TO SQL DATABASE ON DELETE\n " + e);
+		}
+
 	}
 
 	/**
@@ -145,10 +158,10 @@ public class CustomerService {
 	 *
 	 * @param entry
 	 */
-	public synchronized void save(Customer entry) {
+	public synchronized void save(Customer entry) throws SQLException {
 		if (entry == null) {
 			LOGGER.log(Level.SEVERE,
-					"Customer is null. Are you sure you have connected your form to the application as described in tutorial chapter 7?");
+					"Customer is null.");
 			return;
 		}
 		if (entry.getId() == null) {
@@ -161,10 +174,29 @@ public class CustomerService {
 		}
 
 		contacts.put(entry.getId(), entry);
+
+		// update database
+
+		// Connection to DataBase
+		ConnectionManager connMngr = new ConnectionManager();
+		Connection con = null;
+		try {
+			con = connMngr.connect();
+		} catch (Exception e) {
+			System.out.println("\nERROR ON CONNECTING TO SQL DATABASE ON SAVE\n " + e);
+		}
+
+		System.out.println("Updated user: " + entry.getFirstName() + " " + entry.getLastName());
+
+
+		// close the connection
+		assert con != null;
+		con.close();
+
 	}
 
 	/**
-	 * Sample data generation
+	 * Populate UI with DataBase entries
 	 */
 	public void ensureTestData() throws SQLException {
 
@@ -175,7 +207,7 @@ public class CustomerService {
 		try {
 			con = connMngr.connect();
 		} catch (Exception e) {
-			System.out.println("\nERROR ON CONNECTING TO SQL DATABASE\n " + e);
+			System.out.println("\nERROR ON CONNECTING TO SQL DATABASE ON INITIAL POPULATION\n " + e);
 		}
 
 		if(con == null)
@@ -213,7 +245,9 @@ public class CustomerService {
 				c.setEndTime(endTime.toLocalTime());
 
 				save(c);
-		}
+			}
+			// close the connection
+			con.close();
 
 		}
 
