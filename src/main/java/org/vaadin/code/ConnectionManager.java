@@ -1,4 +1,4 @@
-package miyedatamanager;
+package org.vaadin.code;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -21,13 +21,13 @@ public class ConnectionManager {
         try {
 
             //Database Location
-            //String url = "jdbc:sqlite:tempDB";  //Used for testing on local machines
-            String url = "jdbc:sqlite:/MiYE_Project/db/MiYEDB.db";  //Used for the Docker Image
+            String url = "jdbc:sqlite:./tempDB";  //Used for testing on local machines
+            // String url = "jdbc:sqlite:/MiYE_Project/db/MiYEDB.db";  //Used for the Docker Image
 
             // create a connection to the database
             conn = DriverManager.getConnection(url);
 
-            System.out.println("Connection to SQLite has been established.");
+            // System.out.println("Connection to SQLite has been established.");
 
         } catch (SQLException e) {
             System.out.println(e.getMessage());

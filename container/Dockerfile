@@ -84,16 +84,16 @@ RUN sqlite3 /MiYE_Project/db/MiYEDB.db "CREATE TABLE USERS_SERVICES_HISTORY(RESE
 ## USERS
 
 # ADMINS
-RUN sqlite3 /MiYE_Project/db/MiYEDB.db "INSERT INTO USERS (USER_ID, ADMIN_FLAG, F_NAME, L_NAME, GENDER, DATE_START_OF_STAY, DATE_END_OF_STAY) VALUES('1234567',True,'Bush','Bill','Male','01/01/2020','01/01/9999');"
-RUN sqlite3 /MiYE_Project/db/MiYEDB.db "INSERT INTO USERS (USER_ID, ADMIN_FLAG, F_NAME, L_NAME, GENDER, DATE_START_OF_STAY, DATE_END_OF_STAY) VALUES('1111111',True,'Hamilton','Derreck','Male','05/23/2021','01/01/9999');"
-RUN sqlite3 /MiYE_Project/db/MiYEDB.db "INSERT INTO USERS (USER_ID, ADMIN_FLAG, F_NAME, L_NAME, GENDER, DATE_START_OF_STAY, DATE_END_OF_STAY) VALUES('2222222',True,'Walter','Delainey','Female','11/30/2017','01/01/9999');"
+RUN sqlite3 /MiYE_Project/db/MiYEDB.db "INSERT INTO USERS (USER_ID, ADMIN_FLAG, F_NAME, L_NAME, GENDER, DATE_START_OF_STAY, DATE_END_OF_STAY) VALUES('1234567',True,'Bush','Bill','Male','2020-01-01 01:00:00','9999-01-01 23:59:59');"
+RUN sqlite3 /MiYE_Project/db/MiYEDB.db "INSERT INTO USERS (USER_ID, ADMIN_FLAG, F_NAME, L_NAME, GENDER, DATE_START_OF_STAY, DATE_END_OF_STAY) VALUES('1111111',True,'Hamilton','Derreck','Male','2021-05-23 01:00:00','9999-01-01 23:59:59');"
+RUN sqlite3 /MiYE_Project/db/MiYEDB.db "INSERT INTO USERS (USER_ID, ADMIN_FLAG, F_NAME, L_NAME, GENDER, DATE_START_OF_STAY, DATE_END_OF_STAY) VALUES('2222222',True,'Walter','Delainey','Female','2021-11-30 01:00:00','9999-01-01 23:59:59');"
 
 # CUSTOMERS
-RUN sqlite3 /MiYE_Project/db/MiYEDB.db "INSERT INTO USERS (USER_ID, ADMIN_FLAG, F_NAME, L_NAME, GENDER, DATE_START_OF_STAY, DATE_END_OF_STAY) VALUES('7654321',False,'Clinton','Josh','Male','09/01/2021','09/21/2021');"
-RUN sqlite3 /MiYE_Project/db/MiYEDB.db "INSERT INTO USERS (USER_ID, ADMIN_FLAG, F_NAME, L_NAME, GENDER, DATE_START_OF_STAY, DATE_END_OF_STAY) VALUES('1010101',False,'Clinton','Andrea','Female','09/01/2021','09/21/2021');"
-RUN sqlite3 /MiYE_Project/db/MiYEDB.db "INSERT INTO USERS (USER_ID, ADMIN_FLAG, F_NAME, L_NAME, GENDER, DATE_START_OF_STAY, DATE_END_OF_STAY) VALUES('3333333',False,'Rogers','Josh','Male','09/05/2021','09/28/2021');"
-RUN sqlite3 /MiYE_Project/db/MiYEDB.db "INSERT INTO USERS (USER_ID, ADMIN_FLAG, F_NAME, L_NAME, GENDER, DATE_START_OF_STAY, DATE_END_OF_STAY) VALUES('4444444',False,'Parker','Noah','Male','09/01/2021','09/05/2021');"
-RUN sqlite3 /MiYE_Project/db/MiYEDB.db "INSERT INTO USERS (USER_ID, ADMIN_FLAG, F_NAME, L_NAME, GENDER, DATE_START_OF_STAY, DATE_END_OF_STAY) VALUES('5555555',False,'Clinton','Santos','Ashley','08/21/2021','09/21/2021');"
+RUN sqlite3 /MiYE_Project/db/MiYEDB.db "INSERT INTO USERS (USER_ID, ADMIN_FLAG, F_NAME, L_NAME, GENDER, DATE_START_OF_STAY, DATE_END_OF_STAY) VALUES('7654321',False,'Clinton','Josh','Male','2021-09-01 01:00:00','9999-01-01 23:59:59');"
+RUN sqlite3 /MiYE_Project/db/MiYEDB.db "INSERT INTO USERS (USER_ID, ADMIN_FLAG, F_NAME, L_NAME, GENDER, DATE_START_OF_STAY, DATE_END_OF_STAY) VALUES('1010101',False,'Clinton','Andrea','Female','2021-09-01 01:00:00','9999-01-01 23:59:59');"
+RUN sqlite3 /MiYE_Project/db/MiYEDB.db "INSERT INTO USERS (USER_ID, ADMIN_FLAG, F_NAME, L_NAME, GENDER, DATE_START_OF_STAY, DATE_END_OF_STAY) VALUES('3333333',False,'Rogers','Josh','Male','2021-09-05 01:00:00','9999-01-01 23:59:59');"
+RUN sqlite3 /MiYE_Project/db/MiYEDB.db "INSERT INTO USERS (USER_ID, ADMIN_FLAG, F_NAME, L_NAME, GENDER, DATE_START_OF_STAY, DATE_END_OF_STAY) VALUES('4444444',False,'Parker','Noah','Male','2021-09-01 01:00:00','9999-01-01 23:59:59');"
+RUN sqlite3 /MiYE_Project/db/MiYEDB.db "INSERT INTO USERS (USER_ID, ADMIN_FLAG, F_NAME, L_NAME, GENDER, DATE_START_OF_STAY, DATE_END_OF_STAY) VALUES('5555555',False,'Clinton','Santos','Ashley','2021-08-21 01:00:00','9999-01-01 23:59:59');"
 
 
 ## ADMINS
@@ -139,45 +139,58 @@ RUN sqlite3 /MiYE_Project/db/MiYEDB.db "INSERT INTO USERS_SERVICES_HISTORY (RESE
 RUN sqlite3 /MiYE_Project/db/MiYEDB.db "INSERT INTO USERS_SERVICES_HISTORY (RESERVATION_ID, USER_ID, CANCELLED_FLAG, SERVICE_ID, DATE_TIME, DURATION_PICKED, COST) VALUES('5e5e5e5e5e', '4444444', False, '0000007', '2021-09-01 12:30:00', 90, 315.00);"
 
 
+
 ### Using an ENV Variable to Avoid Using an Old Cache (Old Cache Means Old Code)
 
 ARG CACHEBUST
+
 
 
 ### Cloning Project From Repository
 
 # IMPORTANT NOTE 1: To avoid entering username and passowrd, a OAUTH Token generated through github is used, it expires on December 24, 2021
 # IMPORTANT NOTE 2: -b BranchName can be '-b master' however, this is used to test each team member's code, so it's best to use the proper branch
-RUN git clone -b DRojasBranch https://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:x-oauth-basic@github.com/DRojasCSUCI/MiYE_COMP350_Project.git /MiYE_Project/MiYE_COMP350_Project
-
-### Moving Dependencies to Proper Directory
-
-RUN mv /MiYE_Project/MiYE_COMP350_Project/lib/sqlite-jdbc-3.36.0.1.jar /MiYE_Project/class
-
-### Build Application
-
-## Build .java into .class files
-
-RUN javac -d /MiYE_Project/class -classpath /MiYE_Project/class/sqlite-jdbc-3.36.0.1.jar /MiYE_Project/MiYE_COMP350_Project/src/miyedatamanager/*.java
-
-### Setting CLASSPATH
-
-ENV CLASSPATH=/MiYE_Project/class
+RUN git clone -b master https://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:x-oauth-basic@github.com/ShaneVea/MiYE_COMP350_Project.git /MiYE_Project/MiYE_COMP350_Project
 
 
 
-### Creating Start-Up Bash Script
-
-RUN echo "#!/bin/bash" > /startapp.sh
-RUN echo "cd /MiYE_Project/class" >> /startapp.sh
-RUN echo "java -cp \".:sqlite-jdbc-3.36.0.1.jar\" miyedatamanager.Main" >> /startapp.sh
-RUN echo "" >> /startapp.sh
+### Installing Maven Dependencies Manager to Build Program
+RUN apt install -y curl
 
 
+## Environment Variables Used When Setting-Up Maven
 
-### Runnign Start-Up Bash Script
+ARG MAVEN_HOME="/opt/maven"
+ARG MAVEN_VERSION=3.6.3
+ARG MAVEN_CONFIG_HOME="/root/.m2"
 
-ENTRYPOINT ["bash", "startapp.sh"]
+
+## Maven Set-Up for OpenJDK-11
+
+RUN mkdir -p /opt/maven
+RUN curl -LSso /var/tmp/apache-maven-$MAVEN_VERSION-bin.tar.gz https://apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-$MAVEN_VERSION-bin.tar.gz
+RUN tar xzvf /var/tmp/apache-maven-$MAVEN_VERSION-bin.tar.gz -C $MAVEN_HOME --strip-components=1
+RUN rm /var/tmp/apache-maven-$MAVEN_VERSION-bin.tar.gz
+RUN update-alternatives --install /usr/bin/mvn mvn /opt/maven/bin/mvn 10000
+RUN mkdir -p $MAVEN_CONFIG_HOME
+
+
+## Shell Script that Sets Various Environmental Variables If Needed
+
+RUN echo '#!/bin/bash' > /etc/profile.d/custom.sh
+RUN echo 'export MAVEN_HOME="/opt/maven"' >> /etc/profile.d/custom.sh
+RUN echo 'export MAVEN_VERSION=3.6.3' >> /etc/profile.d/custom.sh
+RUN echo 'export MAVEN_CONFIG_HOME="/root/.m2"' >> /etc/profile.d/custom.sh
+RUN echo '' >> /etc/profile.d/custom.sh
+RUN chmod +x /etc/profile.d/custom.sh
+RUN mvn -version
+
+
+## Building and Runnign the Project
+
+WORKDIR /MiYE_Project/MiYE_COMP350_Project
+RUN mvn compile
+ENTRYPOINT ["mvn", "jetty:run"]
 
 
 

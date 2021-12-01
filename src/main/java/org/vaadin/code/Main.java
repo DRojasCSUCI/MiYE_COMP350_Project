@@ -1,4 +1,4 @@
-package miyedatamanager;
+package org.vaadin.code;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -57,23 +57,17 @@ public class Main {
                     //Prompt for User Input
                     System.out.println("\n" +
                             "Enter a Multiple-Character Command From the Available Actions\n" +
-                            "\n--- USERS ---\n" +
                             "[VAU]: View All Users\n" +
-                            "[UPR]: List Past User Reservations\n" +
-                            "[UAR]: List All User Reservations\n" +
-                            "\n--- RESERVATIONS ---\n" +
-                            "[CAR]: Create A Reservation\n" +
+                            "[VAS]: View All Services\n" +
                             "[VPR]: View Past Reservations\n" +
                             "[VFR]: View Future Reservations\n" +
                             "[VAR]: View All Reservations\n" +
-                            "\n--- SERVICES ---\n" +
-                            "[VAS]: View All Services\n" +
+                            "[UPR]: List Past User Reservations\n" +
+                            "[UFR]: List Future User Reservations\n" +
+                            "[UAR]: List All User Reservations\n" +
+                            "[CAR]: Create A Reservation\n" +
                             "[CSR]: Cancel Single Reservation\n" +
-                            "[CAS]: Create A Service\n" +
-                            "[DAS]: Delete A Service\n" +
-                            "[MAS]: Modify A Service\n" +
-                            "\n--- EXIT ---\n" +
-                            "[EXIT]: Exit\n\n" +
+                            "[EXIT]: Exit\n" +
                             "[...]: ...\r" +  // '\r' Prevents this line from being printed
                             "Enter Option: "
                     );
@@ -121,7 +115,7 @@ public class Main {
                             String dateTime = scan.nextLine();
                             System.out.println("Please input Duration ");
                             int durationPicked = scan.nextInt();
-                            rsrvMngr.insertReservation(con, userID, serviceID, dateTime, durationPicked);
+//                            rsrvMngr.insertReservation(con, userID, serviceID, dateTime, durationPicked);
                             userIn = scan.nextLine();
                             break;
                         case "CSR":
@@ -129,31 +123,6 @@ public class Main {
                             userIn = scan.nextLine();
                             rsrvMngr.cancelReservation(con, userIn);
                             break;
-                        case "CAS":
-                            System.out.println("Please input new Service ID: ");
-                            serviceID = scan.nextLine();
-                            System.out.println("Please input new Service Name: ");
-                            String serviceName = scan.nextLine();
-                            System.out.println("Please input new Service Description: ");
-                            String serviceDescription = scan.nextLine();
-                            System.out.println("Please input new Service Price Per Minute: ");
-                            float pricePerMinute = scan.nextFloat();
-                            scan.nextLine();
-                            System.out.println("Please input new Duration Options: ");
-                            String duration = scan.nextLine();
-                            srvcMngr.addService(con, serviceID, serviceName, serviceDescription, pricePerMinute, duration);
-                            break;
-                        case "DAS":
-                            System.out.println("Please input Service ID: ");
-                            serviceID = scan.nextLine();
-                            System.out.println("Please input your password: ");
-                            String userPassword = "";
-                            srvcMngr.removeService(con, serviceID);
-                            break;
-                        case "MAS":
-                            System.out.println("Please input Service ID: ");
-                            serviceID = scan.nextLine();
-                            srvcMngr.modifyService(con, serviceID);
                         case "EXIT":
                             System.out.println("Exiting...");
                             break;
