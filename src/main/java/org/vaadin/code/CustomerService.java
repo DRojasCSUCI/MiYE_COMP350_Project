@@ -220,6 +220,7 @@ public class CustomerService {
 				c.setStatus(CustomerStatus.values()[r.nextInt(CustomerStatus.values().length)]);
 				c.setStartDate(startTime.toLocalDate());
 				c.setStartTime(startTime.toLocalTime());
+				c.setEndDate(endTime.toLocalDate());
 				c.setEndTime(endTime.toLocalTime());
 
 				save(c);
