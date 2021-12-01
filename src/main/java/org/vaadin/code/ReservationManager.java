@@ -215,52 +215,6 @@ public class ReservationManager {
      * @param:  id The user ID
      * @return: None
      */
-    public void cancelReservation(Connection conn, String id) throws SQLException {
-
-        //Prints all Reservations Made For/By The User
-        boolean hasReservation = listFutureReservations(conn, id);
-
-        //Checks if user has any reservations
-        if (!hasReservation) {
-            System.out.println("No Reservations Found to be Cancelled");
-            return;
-        }
-
-        //Choosing which reservation to be cancelled
-        Scanner scan = new Scanner(System.in);
-        String input;
-        ResultSet rs;
-        String sql = "SELECT * FROM USERS_SERVICES_HISTORY WHERE RESERVATION_ID = ?";
-        PreparedStatement pstmt = conn.prepareStatement(sql);
-
-        //Looping Until a Valid Reservation to Cancel is Picked
-        do {
-            System.out.print("Choose a Valid Reservation ID to Cancel or 'EXIT' to go back: ");
-
-            //Checking input
-            input = scan.nextLine();
-            if(input.compareToIgnoreCase("EXIT") == 0)
-                return;
-
-            pstmt.setString(1, input);
-            rs = pstmt.executeQuery();
-        }
-        while(!rs.next());
-
-        //Confirmation to cancel
-        System.out.print("Type 'CONFIRM' to Cancel This Reservation: ");
-        input = scan.nextLine();
-
-        //Delete the reservation
-        if (input.compareToIgnoreCase("CONFIRM") == 0) {
-            sql = "UPDATE USERS_SERVICES_HISTORY SET CANCELLED_FLAG = True WHERE RESERVATION_ID = \'" + rs.getString("RESERVATION_ID") + "\'";
-            pstmt = conn.prepareStatement(sql);
-            pstmt.executeUpdate();
-            System.out.println("RESERVATION CANCELLED");
-            return;
-        }
-        System.out.println("Cancellation terminated, returning to application."); // return to main application
-    }
 
     public String generateRandomId() {
 
