@@ -1,8 +1,10 @@
 GROUP MEMBERS:
+
 Daniel Rojas
 Juan FLores
 Shane Vea
 Roque Garcia
+
 
 
 DESCRIPTION:
@@ -11,17 +13,20 @@ DESCRIPTION:
   We have decied to provide a Dockerfile rather than a Docker Hub Image due to its size.
 
 
+
 REQUIREMENTS:
 
  - Windows 10 Operating System
  - Docker Desktop Installed and Running in Background
  - Container folder (downloaded from project git repository or provided by a group member)
      
+     
 
 CONTAINER FOLDER CONTENTS:
   
   + Dockerfile
   + run_application_incontainer.bat
+
 
 
 INSTRUCTIONS STEPS TO RUN:
