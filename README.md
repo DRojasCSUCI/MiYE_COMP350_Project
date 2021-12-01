@@ -1,7 +1,7 @@
 # GROUP MEMBERS:
 
  Daniel Rojas,
- Juan Ffores, 
+ Juan Flores, 
  Shane Vea,
  Roque Garcia,
  Jeffrey Foyil
