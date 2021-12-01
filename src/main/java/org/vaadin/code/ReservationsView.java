@@ -8,37 +8,35 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.PWA;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 
-@Route("main")
-@PageTitle("MiYE")
-@PWA(name = "Skeleton for MiYE", shortName = "Project Base")
-public class MainView extends VerticalLayout {
+@Route(value="reservations", layout = MainLayout.class)
+@PageTitle("Reservations Page")
+public class ReservationsView extends VerticalLayout {
 
-    private CustomerService service = CustomerService.getInstance();
-    private Grid<Customer> grid = new Grid<>(Customer.class);
+    private ReservationsService service = ReservationsService.getInstance();
+    private Grid<Reservations> grid = new Grid<>(Reservations.class);
     private TextField filterText = new TextField();
-    private CustomerForm form = new CustomerForm(this);
+    private ReservationsForm form = new ReservationsForm(this);
 
-    public MainView() throws SQLException, ClassNotFoundException {
-        filterText.setPlaceholder("Filter by name...");
+    public ReservationsView() throws SQLException {
+        filterText.setPlaceholder("Filter by reservation ID...");
         filterText.setClearButtonVisible(true);
         filterText.setValueChangeMode(ValueChangeMode.EAGER);
         filterText.addValueChangeListener(e -> updateList());
 
-        Button addCustomerBtn = new Button("Add new staff/customer");
-        addCustomerBtn.addClickListener(e -> {
+        Button addReservationBtn = new Button("Add new reservation");
+        addReservationBtn.addClickListener(e -> {
             grid.asSingleSelect().clear();
-            form.setCustomer(new Customer());
+            form.setReservations(new Reservations());
         });
 
         HorizontalLayout toolbar = new HorizontalLayout(filterText,
-                addCustomerBtn);
+                addReservationBtn);
 
-        grid.setColumns("firstName", "lastName", "status");
+        grid.setColumns("reservationId", "serviceId", "status");
 
         HorizontalLayout mainContent = new HorizontalLayout(grid, form);
         mainContent.setSizeFull();
@@ -49,10 +47,10 @@ public class MainView extends VerticalLayout {
         setSizeFull();
 
         updateList();
-        form.setCustomer(null);
+        form.setReservations(null);
 
         grid.asSingleSelect().addValueChangeListener(event ->
-                form.setCustomer(grid.asSingleSelect().getValue()));
+                form.setReservations(grid.asSingleSelect().getValue()));
     }
 
     public void updateList() {

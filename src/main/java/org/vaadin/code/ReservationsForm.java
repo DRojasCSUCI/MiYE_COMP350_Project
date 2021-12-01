@@ -13,11 +13,11 @@ import com.vaadin.flow.data.binder.Binder;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class CustomerForm extends FormLayout {
+public class ReservationsForm extends FormLayout {
 
     private TextField firstName = new TextField("First name");
     private TextField lastName = new TextField("Last name");
-    private ComboBox<CustomerStatus> status = new ComboBox<>("Status");
+    private ComboBox<ReservationsStatus> status = new ComboBox<>("Status");
     private DatePicker startDate = new DatePicker("Date");
     private TimePicker startTime = new TimePicker("Start Time");
     private TimePicker endTime = new TimePicker("End Time");
@@ -25,16 +25,16 @@ public class CustomerForm extends FormLayout {
     private Button save = new Button("Save");
     private Button delete = new Button("Delete");
 
-    private Binder<Customer> binder = new Binder<>(Customer.class);
-    private CustomerView customerView;
-    private CustomerService service = CustomerService.getInstance();
+    private Binder<Reservations> binder = new Binder<>(Reservations.class);
+    private ReservationsView ReservationsView;
+    private ReservationsService service = ReservationsService.getInstance();
 
-    private boolean newCustomer = false;
+    private boolean newReservations = false;
 
-    public CustomerForm(CustomerView customerView) throws SQLException {
-        this.customerView = customerView;
+    public ReservationsForm(ReservationsView ReservationsView) throws SQLException {
+        this.ReservationsView = ReservationsView;
 
-        status.setItems(CustomerStatus.values());
+        status.setItems(ReservationsStatus.values());
 
         HorizontalLayout buttons = new HorizontalLayout(save, delete);
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
@@ -52,12 +52,12 @@ public class CustomerForm extends FormLayout {
         delete.addClickListener(event -> delete());
     }
 
-    public void setNewCustomer(boolean newCustomer){ this.newCustomer = newCustomer; }
+    public void setNewReservations(boolean newReservations){ this.newReservations = newReservations; }
 
-    public void setCustomer(Customer customer) {
-        binder.setBean(customer);
+    public void setReservations(Reservations Reservations) {
+        binder.setBean(Reservations);
 
-        if (customer == null) {
+        if (Reservations == null) {
             setVisible(false);
         } else {
             setVisible(true);
@@ -66,7 +66,7 @@ public class CustomerForm extends FormLayout {
     }
 
     private void save() throws SQLException {
-        Customer customer = binder.getBean();
+        Reservations Reservations = binder.getBean();
 
         // update database
         UserManager userMger = new UserManager();
@@ -78,15 +78,15 @@ public class CustomerForm extends FormLayout {
         } catch (Exception e) {
             System.out.println("\nERROR ON CONNECTING TO SQL DATABASE ON SAVE\n " + e);
         }
-        System.out.println("Updated user: " + customer.getFirstName() + " " + customer.getLastName());
+        // System.out.println("Updated user: " + Reservations.getFirstName() + " " + Reservations.getLastName());
 
-        if(newCustomer)
+        if(newReservations)
         {
-            // userMger.createNewUser(con, customer);
+            // userMger.createNewUser(con, Reservations);
         }
         else
         {
-            userMger.updateUser(con, customer);
+            // userMger.updateUser(con, Reservations);
         }
 
 
@@ -94,16 +94,16 @@ public class CustomerForm extends FormLayout {
         assert con != null;
         con.close();
 
-        service.save(customer);
-        customerView.updateList();
-        setCustomer(null);
+        service.save(Reservations);
+        ReservationsView.updateList();
+        setReservations(null);
     }
 
     private void delete() {
-        Customer customer = binder.getBean();
-        service.delete(customer);
-        customerView.updateList();
-        setCustomer(null);
+        Reservations Reservations = binder.getBean();
+        service.delete(Reservations);
+        ReservationsView.updateList();
+        setReservations(null);
     }
 
 }

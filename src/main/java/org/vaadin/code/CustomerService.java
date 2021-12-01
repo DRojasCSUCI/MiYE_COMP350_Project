@@ -16,13 +16,7 @@ import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * An in memory dummy "database" for the example purposes. In a typical Java app
- * this class would be replaced by e.g. EJB or a Spring based service class.
- * <p>
- * In demos/tutorials/examples, get a reference to this service class with
- * {@link CustomerService#getInstance()}.
- */
+
 public class CustomerService {
 
 	private static CustomerService instance;
@@ -158,7 +152,7 @@ public class CustomerService {
 	 *
 	 * @param entry
 	 */
-	public synchronized void save(Customer entry) throws SQLException {
+	public synchronized void save(Customer entry) {
 		if (entry == null) {
 			LOGGER.log(Level.SEVERE,
 					"Customer is null.");
@@ -174,24 +168,6 @@ public class CustomerService {
 		}
 
 		contacts.put(entry.getId(), entry);
-
-		// update database
-
-		// Connection to DataBase
-		ConnectionManager connMngr = new ConnectionManager();
-		Connection con = null;
-		try {
-			con = connMngr.connect();
-		} catch (Exception e) {
-			System.out.println("\nERROR ON CONNECTING TO SQL DATABASE ON SAVE\n " + e);
-		}
-
-		System.out.println("Updated user: " + entry.getFirstName() + " " + entry.getLastName());
-
-
-		// close the connection
-		assert con != null;
-		con.close();
 
 	}
 
@@ -227,6 +203,8 @@ public class CustomerService {
 			{
 				// Creating new customer
 				Customer c = new Customer();
+
+				c.setDatabaseId(rs.getString("USER_ID"));
 
 				c.setFirstName(rs.getString("F_NAME"));
 				c.setLastName(rs.getString("L_NAME"));

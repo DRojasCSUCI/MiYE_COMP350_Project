@@ -13,6 +13,8 @@ public class Customer implements Serializable, Cloneable {
 
     private Long id;
 
+    private String databaseId;
+
     private String firstName = "";
 
     private String lastName = "";
@@ -20,6 +22,8 @@ public class Customer implements Serializable, Cloneable {
     private CustomerStatus status;
 
     private LocalDate startDate;
+
+    private LocalDate endDate;
 
     private LocalTime startTime;
 
@@ -35,23 +39,9 @@ public class Customer implements Serializable, Cloneable {
         this.id = id;
     }
 
-    /**
-     * Get the value of email
-     *
-     * @return the value of email
-     */
-    public String getEmail() {
-        return email;
-    }
+    public String getDatabaseId() {return databaseId;}
 
-    /**
-     * Set the value of email
-     *
-     * @param email new value of email
-     */
-    public void setEmail(String email) {
-        this.email = email;
-    }
+    public void setDatabaseId(String databaseId) { this.databaseId = databaseId; }
 
     /**
      * Get the value of status
@@ -80,6 +70,7 @@ public class Customer implements Serializable, Cloneable {
         return startDate;
     }
 
+
     /**
      * Set the value of startDate
      *
@@ -95,6 +86,24 @@ public class Customer implements Serializable, Cloneable {
      * @return the value of startTime
      */
     public LocalTime getStartTime() {return startTime;}
+
+    /**
+     * Set the value of endDate
+     *
+     * @param endDate new value of endDate
+     */
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
+    }
+
+    /**
+     * Get the value of endDate
+     *
+     * @return the value of endDate
+     */
+    public LocalDate getEndDate() {
+        return endDate;
+    }
 
     /**
      * Set the value of startTime

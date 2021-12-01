@@ -5,6 +5,11 @@ import java.sql.*;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
 import java.util.Calendar;
 import java.util.Scanner;
 
@@ -54,6 +59,36 @@ public class UserManager {
             return false;
         return true;
 
+    }
+
+    public boolean updateUser(Connection conn, Customer user) throws SQLException {
+        // Preparing the Query
+
+        LocalDateTime startDate = user.getStartTime().atDate(user.getStartDate());
+        LocalDateTime endDate = user.getEndTime().atDate(user.getEndDate());
+
+
+        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+
+        String startOfStay =  startDate.format(outputFormatter);
+        String endofStay = endDate.format(outputFormatter);
+
+        String query = "UPDATE USERS SET"
+                + " F_NAME = \'" + user.getFirstName() + "\',"
+                + " L_NAME = \'" + user.getLastName() + "\',"
+                + " DATE_START_OF_STAY = \'" + startOfStay +"\',"
+                + " DATE_END_OF_STAY = \'" + endofStay +"\'"
+                + " WHERE USER_ID = \'" + user.getDatabaseId() +"\'";
+
+        System.out.println(query);
+
+        Statement pstmt = conn.createStatement();
+
+        // Execute the Query
+        pstmt.executeUpdate(query);
+
+        return true;
     }
 
     public ResultSet getCustomer(Connection conn) throws SQLException {
