@@ -33,7 +33,7 @@ public class ReservationsForm extends FormLayout {
 //    private TimePicker duration = new TimePicker("Duration");
 
     private Button save = new Button("Save");
-    private Button delete = new Button("Delete");
+    private Button cancel = new Button("Cancel");
 
     private Binder<Reservations> binder = new Binder<>(Reservations.class);
     private ReservationsView reservationsView;
@@ -49,7 +49,7 @@ public class ReservationsForm extends FormLayout {
 
         service.setItems(ReservationsStatus.values());
 
-        HorizontalLayout buttons = new HorizontalLayout(save, delete);
+        HorizontalLayout buttons = new HorizontalLayout(save, cancel);
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         add(userId, service, date, time, stepSelector, buttons);
 
@@ -62,7 +62,9 @@ public class ReservationsForm extends FormLayout {
                 e.printStackTrace();
             }
         });
-        delete.addClickListener(event -> delete());
+        cancel.addClickListener(event -> {
+            setReservations(null);
+        });
         service.addValueChangeListener(event -> durationTime());
     }
 
@@ -175,9 +177,18 @@ public class ReservationsForm extends FormLayout {
     }
 
 
+//    private void delete() {
+//        Reservations reservation = binder.getBean();
+//        services.delete(reservation);
+//        reservationsView.updateList();
+//        setReservations(null);
+//    }
+
     private void delete() {
         Reservations reservation = binder.getBean();
-        services.delete(reservation);
+
+
+
         reservationsView.updateList();
         setReservations(null);
     }

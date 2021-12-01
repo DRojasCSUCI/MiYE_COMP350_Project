@@ -2,16 +2,9 @@ package org.vaadin.code;
 
 import java.sql.Connection;
 import java.sql.*;
-import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
-import java.time.temporal.ChronoField;
-import java.util.Calendar;
-import java.util.Scanner;
 
 
 public class UserManager {
@@ -79,7 +72,7 @@ public class UserManager {
                 + " L_NAME = \'" + user.getLastName() + "\',"
                 + " DATE_START_OF_STAY = \'" + startOfStay +"\',"
                 + " DATE_END_OF_STAY = \'" + endofStay +"\'"
-                + " WHERE USER_ID = \'" + user.getDatabaseId() +"\'";
+                + " WHERE USER_ID = \'" + user.getUserId() +"\'";
 
         System.out.println(query);
 

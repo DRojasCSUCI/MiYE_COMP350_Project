@@ -13,7 +13,7 @@ public class Customer implements Serializable, Cloneable {
 
     private Long id;
 
-    private String databaseId;
+    private String userId;
 
     private String firstName = "";
 
@@ -37,9 +37,9 @@ public class Customer implements Serializable, Cloneable {
         this.id = id;
     }
 
-    public String getDatabaseId() {return databaseId;}
+    public String getUserId() {return userId;}
 
-    public void setDatabaseId(String databaseId) { this.databaseId = databaseId; }
+    public void setUserId(String userId) { this.userId = userId; }
 
     /**
      * Get the value of status

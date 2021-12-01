@@ -37,7 +37,7 @@ public class CustomerView extends VerticalLayout {
         HorizontalLayout toolbar = new HorizontalLayout(filterText,
                 addCustomerBtn);
 
-        grid.setColumns("firstName", "lastName", "status");
+        grid.setColumns("firstName", "lastName", "userId");
 
         HorizontalLayout mainContent = new HorizontalLayout(grid, form);
         mainContent.setSizeFull();
