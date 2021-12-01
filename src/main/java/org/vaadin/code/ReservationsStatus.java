@@ -1,5 +1,5 @@
 package org.vaadin.code;
 
 public enum ReservationsStatus {
-    thing, otherThing
+    MineralBath, SwedishMassage, ShiatsuMassage, DeepTissueMassage, NormalFacial, CollagenFacial, HotStone, SugarScrub, HerbalBodyWrap, BotanicalMudWrap
 }

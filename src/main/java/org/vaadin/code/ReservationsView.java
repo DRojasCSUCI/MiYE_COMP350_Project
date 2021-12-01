@@ -22,7 +22,7 @@ public class ReservationsView extends VerticalLayout {
     private ReservationsForm form = new ReservationsForm(this);
 
     public ReservationsView() throws SQLException {
-        filterText.setPlaceholder("Filter by reservation ID...");
+        filterText.setPlaceholder("Filter reservations...");
         filterText.setClearButtonVisible(true);
         filterText.setValueChangeMode(ValueChangeMode.EAGER);
         filterText.addValueChangeListener(e -> updateList());
@@ -36,7 +36,7 @@ public class ReservationsView extends VerticalLayout {
         HorizontalLayout toolbar = new HorizontalLayout(filterText,
                 addReservationBtn);
 
-        grid.setColumns("reservationId", "serviceId", "status");
+        grid.setColumns("reservationId", "userId", "firstName", "lastName", "status", "date", "time", "duration", "cost");
 
         HorizontalLayout mainContent = new HorizontalLayout(grid, form);
         mainContent.setSizeFull();
@@ -49,8 +49,8 @@ public class ReservationsView extends VerticalLayout {
         updateList();
         form.setReservations(null);
 
-        grid.asSingleSelect().addValueChangeListener(event ->
-                form.setReservations(grid.asSingleSelect().getValue()));
+//        grid.asSingleSelect().addValueChangeListener(event ->
+//                form.setReservations(grid.asSingleSelect().getValue()));
     }
 
     public void updateList() {

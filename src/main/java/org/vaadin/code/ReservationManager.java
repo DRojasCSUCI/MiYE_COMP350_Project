@@ -73,7 +73,7 @@ public class ReservationManager {
 
     }
 
-    public void printFutureReservations(Connection conn) throws SQLException {
+    public ResultSet printFutureReservations(Connection conn) throws SQLException {
 
         //Current Date Time
         Calendar calendar = Calendar.getInstance();
@@ -94,9 +94,10 @@ public class ReservationManager {
         ResultSet rs = pstmt.executeQuery();
         printReservationRS(rs);
 
+        return rs;
     }
 
-    public void printAllReservations(Connection conn) throws SQLException {
+    public ResultSet printAllReservations(Connection conn) throws SQLException {
 
         //Preparing the Query
         String sql = "" +
@@ -109,7 +110,9 @@ public class ReservationManager {
         //Executing Query and Printing Formatted Results
         PreparedStatement pstmt = conn.prepareStatement(sql);
         ResultSet rs = pstmt.executeQuery();
-        printReservationRS(rs);
+//        printReservationRS(rs);
+
+        return rs;
 
     }
 

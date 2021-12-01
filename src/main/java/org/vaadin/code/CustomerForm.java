@@ -70,6 +70,7 @@ public class CustomerForm extends FormLayout {
 
         // update database
         UserManager userMger = new UserManager();
+
         // Connection to DataBase
         ConnectionManager connMngr = new ConnectionManager();
         Connection con = null;
@@ -80,14 +81,14 @@ public class CustomerForm extends FormLayout {
         }
         System.out.println("Updated user: " + customer.getFirstName() + " " + customer.getLastName());
 
-        if(newCustomer)
-        {
-            // userMger.createNewUser(con, customer);
-        }
-        else
-        {
-            userMger.updateUser(con, customer);
-        }
+//        if(newCustomer)
+//        {
+//            // userMger.createNewUser(con, customer);
+//        }
+//        else
+//        {
+////            userMger.updateUser(con, customer);
+//        }
 
 
         // close the connection

@@ -29,8 +29,6 @@ public class Customer implements Serializable, Cloneable {
 
     private LocalTime endTime;
 
-    private String email = "";
-
     public Long getId() {
         return id;
     }

@@ -165,7 +165,7 @@ public class ReservationsService {
             entry.setId(nextId++);
         }
         try {
-            entry = (Reservations) entry.clone();
+            entry = entry.clone();
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
@@ -198,7 +198,7 @@ public class ReservationsService {
         {
             ReservationManager resvMngr = new ReservationManager();
 
-            ResultSet rs = resvMngr.getAllReservations(con);
+            ResultSet rs = resvMngr.printAllReservations(con);
 
             Random r = new Random(0);
 
@@ -209,7 +209,8 @@ public class ReservationsService {
 
                 c.setReservationId(rs.getString("RESERVATION_ID"));
                 c.setUserId(rs.getString("USER_ID"));
-                c.setCancelledFlag(rs.getBoolean("CANCELLED_FLAG"));
+                c.setFirstName(rs.getString("F_NAME"));
+                c.setLastName(rs.getString("L_NAME"));
                 c.setServiceId(rs.getString("SERVICE_ID"));
 
                 String date = rs.getString("DATE_TIME");
@@ -217,11 +218,43 @@ public class ReservationsService {
                 LocalDateTime formattedDate = LocalDateTime.parse(date, formatter);
                 c.setDate(formattedDate.toLocalDate());
                 c.setTime(formattedDate.toLocalTime());
-                c.setStatus(ReservationsStatus.values()[r.nextInt(ReservationsStatus.values().length)]);
+                switch (c.getServiceId()){
+                    case "0000001":
+                        c.setStatus(ReservationsStatus.MineralBath);
+                        break;
+                    case "0000002":
+                        c.setStatus(ReservationsStatus.SwedishMassage);
+                        break;
+                    case "0000003":
+                        c.setStatus(ReservationsStatus.ShiatsuMassage);
+                        break;
+                    case "0000004":
+                        c.setStatus(ReservationsStatus.DeepTissueMassage);
+                        break;
+                    case "0000005":
+                        c.setStatus(ReservationsStatus.NormalFacial);
+                        break;
+                    case "0000006":
+                        c.setStatus(ReservationsStatus.CollagenFacial);
+                        break;
+                    case "0000007":
+                        c.setStatus(ReservationsStatus.HotStone);
+                        break;
+                    case "0000008":
+                        c.setStatus(ReservationsStatus.SugarScrub);
+                        break;
+                    case "0000009":
+                        c.setStatus(ReservationsStatus.HerbalBodyWrap);
+                        break;
+                    case "0000010":
+                        c.setStatus(ReservationsStatus.BotanicalMudWrap);
+                        break;
+                }
+
                 c.setDuration(rs.getInt("DURATION_PICKED"));
 
                 c.setCost(rs.getFloat("COST"));
-
+                System.out.println(c);
                 save(c);
             }
             // close the connection

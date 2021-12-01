@@ -24,6 +24,10 @@ public class Reservations implements Serializable, Cloneable {
 
     private LocalDate date;
 
+    private String firstName;
+
+    private String lastName;
+
     private LocalTime time;
 
     private int duration;
@@ -92,6 +96,42 @@ public class Reservations implements Serializable, Cloneable {
         return date;
     }
 
+    /**
+     * Get the value of lastName
+     *
+     * @return the value of lastName
+     */
+    public String getLastName() {
+        return lastName;
+    }
+
+    /**
+     * Set the value of lastName
+     *
+     * @param lastName new value of lastName
+     */
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+
+    /**
+     * Get the value of firstName
+     *
+     * @return the value of firstName
+     */
+    public String getFirstName() {
+        return firstName;
+    }
+
+    /**
+     * Set the value of firstName
+     *
+     * @param firstName new value of firstName
+     */
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
 
     /**
      * Set the value of startDate
@@ -154,7 +194,7 @@ public class Reservations implements Serializable, Cloneable {
 
     @Override
     public String toString() {
-        return reservationId + " " +  serviceId;
+        return reservationId + " " +  userId + " " + firstName + " " + lastName;
     }
 
 
