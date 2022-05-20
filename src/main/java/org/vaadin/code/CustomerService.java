@@ -3,9 +3,7 @@ package org.vaadin.code;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -204,7 +202,7 @@ public class CustomerService {
 				// Creating new customer
 				Customer c = new Customer();
 
-				c.setDatabaseId(rs.getString("USER_ID"));
+				c.setUserId(rs.getString("USER_ID"));
 
 				c.setFirstName(rs.getString("F_NAME"));
 				c.setLastName(rs.getString("L_NAME"));

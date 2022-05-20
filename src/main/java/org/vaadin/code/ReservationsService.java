@@ -126,17 +126,19 @@ public class ReservationsService {
     /**
      * Deletes a Reservations from a system
      *
-     * @param value
+     * @param reservationId
      *            the Reservations to be deleted
      */
-    public synchronized void delete(Reservations value) {
+    public synchronized void delete(String reservationId) throws SQLException {
 
-        contacts.remove(value.getId());
+        ReservationManager resvMngr = new ReservationManager();
+
+        List<Reservations> list = findAll(reservationId);
+
+        contacts.remove(list.get(0).getId());
 
         //Todo
         // update database
-
-
 
         // Connection to DataBase
         ConnectionManager connMngr = new ConnectionManager();
@@ -146,6 +148,9 @@ public class ReservationsService {
         } catch (Exception e) {
             System.out.println("\nERROR ON CONNECTING TO SQL DATABASE ON DELETE\n " + e);
         }
+
+        System.out.println("Reservation Id: " + reservationId);
+        resvMngr.cancelReservation(con, reservationId);
 
     }
 

@@ -20,6 +20,7 @@ public class ReservationsView extends VerticalLayout {
     private Grid<Reservations> grid = new Grid<>(Reservations.class);
     private TextField filterText = new TextField();
     private ReservationsForm form = new ReservationsForm(this);
+    private DeleteReservationsForm delForm = new DeleteReservationsForm(this);
 
     public ReservationsView() throws SQLException {
         filterText.setPlaceholder("Filter reservations...");
@@ -27,19 +28,26 @@ public class ReservationsView extends VerticalLayout {
         filterText.setValueChangeMode(ValueChangeMode.EAGER);
         filterText.addValueChangeListener(e -> updateList());
 
-        Button addReservationBtn = new Button("Add new reservation");
+        Button addReservationBtn = new Button("Add reservation");
         addReservationBtn.addClickListener(e -> {
             grid.asSingleSelect().clear();
             form.setNewReservation(true);
             form.setReservations(new Reservations());
         });
 
+        Button deleteReservationBtn = new Button("Delete reservation");
+        deleteReservationBtn.addClickListener(e -> {
+            grid.asSingleSelect().clear();
+            delForm.setReservations(new Reservations());
+        });
+
         HorizontalLayout toolbar = new HorizontalLayout(filterText,
-                addReservationBtn);
+                addReservationBtn,
+                deleteReservationBtn);
 
         grid.setColumns("reservationId", "userId", "firstName", "lastName", "status", "date", "time", "duration", "cost");
 
-        HorizontalLayout mainContent = new HorizontalLayout(grid, form);
+        HorizontalLayout mainContent = new HorizontalLayout(grid, form, delForm);
         mainContent.setSizeFull();
         grid.setSizeFull();
 
@@ -49,6 +57,7 @@ public class ReservationsView extends VerticalLayout {
 
         updateList();
         form.setReservations(null);
+        delForm.setReservations(null);
 
 //        grid.asSingleSelect().addValueChangeListener(event ->
 //                form.setReservations(grid.asSingleSelect().getValue()));

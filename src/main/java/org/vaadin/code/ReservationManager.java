@@ -215,125 +215,6 @@ public class ReservationManager {
      * @param:  id The user ID
      * @return: None
      */
-    public void cancelReservation(Connection conn, String id) throws SQLException {
-
-        //Prints all Reservations Made For/By The User
-        boolean hasReservation = listFutureReservations(conn, id);
-
-        //Checks if user has any reservations
-        if (!hasReservation) {
-            System.out.println("No Reservations Found to be Cancelled");
-            return;
-        }
-
-        //Choosing which reservation to be cancelled
-        Scanner scan = new Scanner(System.in);
-        String input;
-        ResultSet rs;
-        String sql = "SELECT * FROM USERS_SERVICES_HISTORY WHERE RESERVATION_ID = ?";
-        PreparedStatement pstmt = conn.prepareStatement(sql);
-
-        //Looping Until a Valid Reservation to Cancel is Picked
-        do {
-            System.out.print("Choose a Valid Reservation ID to Cancel or 'EXIT' to go back: ");
-
-            //Checking input
-            input = scan.nextLine();
-            if(input.compareToIgnoreCase("EXIT") == 0)
-                return;
-
-            pstmt.setString(1, input);
-            rs = pstmt.executeQuery();
-        }
-        while(!rs.next());
-
-        //Confirmation to cancel
-        System.out.print("Type 'CONFIRM' to Cancel This Reservation: ");
-        input = scan.nextLine();
-
-        //Delete the reservation
-        if (input.compareToIgnoreCase("CONFIRM") == 0) {
-            sql = "UPDATE USERS_SERVICES_HISTORY SET CANCELLED_FLAG = True WHERE RESERVATION_ID = \'" + rs.getString("RESERVATION_ID") + "\'";
-            pstmt = conn.prepareStatement(sql);
-            pstmt.executeUpdate();
-            System.out.println("RESERVATION CANCELLED");
-            return;
-        }
-        System.out.println("Cancellation terminated, returning to application."); // return to main application
-    }
-
-//    public boolean checkReservationConflicts(Connection conn, String userId, String serviceId, LocalDateTime dateTime, int duration) throws SQLException, ParseException
-//    {
-//        ServiceManager srvcManager = new ServiceManager();
-//
-//        String mineralBath = "001";
-//
-//        String sql = "SELECT * FROM USERS_SERVICES_HISTORY WHERE SERVICE_ID = ? AND DATE_TIME >= ? AND DATE_TIME <= ?";
-//
-//        PreparedStatement pstmt = conn.prepareStatement(sql);
-//
-//        int maxDuration = srvcManager.getMaxDurationOptions(conn, serviceId);
-//        if (maxDuration == -1)
-//            return false;
-//
-//
-//        pstmt.setString(1, serviceId);
-//        pstmt.setString(2,  dateTime.plusMinutes(-1*maxDuration).toString());
-//        calendar.add(Calendar.MINUTE,maxDuration);
-//        calendar.add(Calendar.MINUTE,duration);
-//
-//        pstmt.setString(3, outputFormatter.format(calendar.getTimeInMillis()));
-//
-//        ResultSet rs = pstmt.executeQuery();
-//
-//        if (rs.next() && serviceId.compareTo(mineralBath) != 0){
-//            Calendar tempCalendar = Calendar.getInstance();
-//            do {
-//
-//                if (rs.getInt("DURATION_PICKED") == maxDuration)
-//                    return false;
-//
-//                tempCalendar.setTime(outputFormatter.parse(rs.getString("DATE_TIME")));
-//                tempCalendar.add(Calendar.MINUTE,rs.getInt("DURATION_PICKED"));
-//                String temp = outputFormatter.format(tempCalendar.getTimeInMillis());
-//
-//                if (temp.compareTo(aptTime) >= 0)
-//                    return false;
-//
-//            }while (rs.next());
-//        }
-//
-//        String sql2 = "SELECT * FROM USERS_SERVICES_HISTORY WHERE USER_ID = ? AND DATE_TIME >= ? AND DATE_TIME <= ?";
-//        PreparedStatement pstmt2 = conn.prepareStatement(sql2);
-//
-//        pstmt2.setString(1, userId);
-//        calendar.set(Calendar.HOUR_OF_DAY, 0);
-//        calendar.set(Calendar.MINUTE, 0);
-//        calendar.set(Calendar.SECOND, 0);
-//        pstmt2.setString(2, outputFormatter.format(calendar.getTimeInMillis()));
-//        calendar.set(Calendar.HOUR_OF_DAY, 23);
-//        calendar.set(Calendar.MINUTE, 59);
-//        calendar.set(Calendar.SECOND, 59);
-//        pstmt2.setString(3, outputFormatter.format(calendar.getTimeInMillis()));
-//
-//        ResultSet rs2 = pstmt2.executeQuery();
-//
-//        if (rs2.next()){
-//            Calendar tempCalendar2 = Calendar.getInstance();
-//            do {
-//
-//                tempCalendar2.setTime(outputFormatter.parse(rs2.getString("DATE_TIME")));
-//                tempCalendar2.add(Calendar.MINUTE,rs2.getInt("DURATION_PICKED"));
-//                String temp = outputFormatter.format(tempCalendar2.getTimeInMillis());
-//
-//                if (temp.compareTo(aptTime) >= 0)
-//                    return false;
-//
-//            }while (rs2.next());
-//        }
-//
-//        return true;
-//    }
 
     public String generateRandomId() {
 
@@ -349,6 +230,15 @@ public class ReservationManager {
             sb.append(base62chars[_random.nextInt(62)]);
 
         return sb.toString();
+    }
+
+    public void cancelReservation(Connection conn, String id) throws SQLException {
+        System.out.println("I'M IN CANCEL RESERVATION");
+        String sql = "DELETE FROM USERS_SERVICES_HISTORY WHERE RESERVATION_ID = \'" + id + "\'";
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        pstmt = conn.prepareStatement(sql);
+        System.out.println(id);pstmt.executeUpdate();
+        System.out.println("I'm DONE WITH CANCEL RESERVATION");
     }
 
     public boolean checkUniqueId (Connection conn, String tableName, String id) throws SQLException
